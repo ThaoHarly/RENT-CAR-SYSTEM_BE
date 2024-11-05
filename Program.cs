@@ -10,9 +10,12 @@ using System.Text;
 using RentCarSystem.Reponsitories;
 using RentCarSystem.Mappings;
 using RentCarSystem.Migrations.Data;
+<<<<<<< HEAD
 using RentCarSystem.Models.Domain;
 using System.Reflection.Emit;
 using System.Security.Claims;
+=======
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
 namespace RentCarSystem
 {
@@ -60,13 +63,17 @@ namespace RentCarSystem
             });
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
             //Add DBContext dependency injection
             builder.Services.AddDbContext<RentCarSystemContext>(option =>
                                                             option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
             builder.Services.AddScoped<ITokenReponsitory, TokenReponsitory>();
+<<<<<<< HEAD
             builder.Services.AddScoped<IRegisterReponsitory, RegisterReponsitory>();
             builder.Services.AddScoped<ILoginReponsitory, LoginReponsitory>();
             builder.Services.AddScoped<IAdminReponsitory, AdminReponsitory>();
@@ -74,6 +81,10 @@ namespace RentCarSystem
             //Add Hashpassword
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             
+=======
+            builder.Services.AddScoped<IRegisterReponsitory, RegisterReponsitory>();           
+
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
             //Add mapping
             builder.Services.AddAutoMapper(typeof(AutomapperProfile));
 
@@ -118,6 +129,7 @@ namespace RentCarSystem
                 });
 
 
+<<<<<<< HEAD
             //add Authorization
             builder.Services.AddAuthorization(options =>
             {
@@ -133,6 +145,8 @@ namespace RentCarSystem
                     }));
             });
 
+=======
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
             var app = builder.Build();
 

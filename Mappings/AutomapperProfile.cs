@@ -63,8 +63,12 @@ namespace RentCarSystem.Mappings
             CreateMap<Role, RoleDTO>();
 
             //Map Admin to AdminDTO
+<<<<<<< HEAD
             CreateMap<Admin, AdminDTO>()
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.AdminNavigation));
+=======
+            CreateMap<Admin, AdminDTO>();
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
             //Map User to UserDTO
             CreateMap<User, UserDTO>();
@@ -82,12 +86,19 @@ namespace RentCarSystem.Mappings
             CreateMap<Business, BusinessDTO>();
 
             //Map ApprovalRequest to ApprovalRequestDTO
+<<<<<<< HEAD
             CreateMap<ApprovalRequestDTO, ApprovalRequest>().ReverseMap(); //Map ngược
+=======
+            CreateMap<ApprovalRequest, ApprovalRequestDTO>();
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
             //Map Notification to NotificationDTO
             CreateMap<Notification, NotificationDTO>();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
         }
     }
 }

@@ -7,7 +7,11 @@ public partial class Customer
 {
     public string LicenseId { get; set; } = null!;
 
+<<<<<<< HEAD
     public string UserId { get; set; }
+=======
+    public Guid UserId { get; set; }
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
     public string Class { get; set; } = null!;
 
