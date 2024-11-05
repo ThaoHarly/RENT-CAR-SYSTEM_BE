@@ -22,6 +22,17 @@ namespace RentCarSystem.Controllers
             this.carRepository = carRepository;
         }
 
+        // Create
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] AddCarRequest addCarRequest)
+        {
+            var CarDomainModel = mapper.Map<Car>(addCarRequest);
+            await carRepository.CreateAsync(CarDomainModel);
+            
+            // map domain model to dto
+            return Ok(mapper.Map<CarDTO>(CarDomainModel));
+        }
+
         // Get all
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery,

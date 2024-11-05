@@ -13,6 +13,13 @@ namespace RentCarSystem.Reponsitories
             this.dbcontext = dbcontext;
         }
 
+        public async Task<Car> CreateAsync(Car car)
+        {
+            await dbcontext.AddAsync(car);
+            await dbcontext.SaveChangesAsync(); 
+            return car;
+        }
+
         public async Task<Car?> DeleteAsync(Guid id)
         {
             var existingCar = await dbcontext.Cars.FirstOrDefaultAsync(x => x.CarId == id);

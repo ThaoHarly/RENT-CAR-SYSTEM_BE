@@ -21,6 +21,17 @@ namespace RentCarSystem.Controllers
             this.motorRepository = motorRepository;
         }
 
+        // Create
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] AddMotorRequest addMotorRequest)
+        {
+            var MotorDomainModel = mapper.Map<Motor>(addMotorRequest);
+            MotorDomainModel = await motorRepository.CreateAsync(MotorDomainModel);
+
+            // map domain to dto
+            return Ok(mapper.Map<MotorDTO>(MotorDomainModel));
+        }
+
         // Get all 
         [HttpGet]
         public async Task<IActionResult> GetAll()
