@@ -10,6 +10,8 @@ using System.Text;
 using RentCarSystem.Reponsitories;
 using RentCarSystem.Mappings;
 using RentCarSystem.Migrations.Data;
+using RentCarSystem.Models.DTO;
+using RentCarSystem.Models.UpdateRequest;
 
 namespace RentCarSystem
 {
@@ -63,7 +65,10 @@ namespace RentCarSystem
 
 
             builder.Services.AddScoped<ITokenReponsitory, TokenReponsitory>();
-            builder.Services.AddScoped<IRegisterReponsitory, RegisterReponsitory>();           
+            builder.Services.AddScoped<IRegisterReponsitory, RegisterReponsitory>();   
+            builder.Services.AddScoped<IVehicleHireServiceRepository, VehicleHireServiceRepository>();
+            builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+            builder.Services.AddScoped<ICarRepository, CarRepository>();
 
             //Add mapping
             builder.Services.AddAutoMapper(typeof(AutomapperProfile));

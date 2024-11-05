@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
+using RentCarSystem.Models.UpdateRequest;
 
 namespace RentCarSystem.Mappings
 {
@@ -72,7 +73,10 @@ namespace RentCarSystem.Mappings
             CreateMap<Customer, CustomerDTO>();
 
             //Map VehicleHireService to ServiceDTO
-            CreateMap<VehicleHireService, ServiceDTO>();
+            CreateMap<VehicleHireService, ServiceDTO>().ReverseMap();
+
+            //Map Vehicle to VehicleDTO
+            CreateMap<Vehicle, VehicleDTO>();
 
             //Map Individual to IndividualDTO
             CreateMap<Individual, IndividualDTO>();
@@ -85,6 +89,18 @@ namespace RentCarSystem.Mappings
 
             //Map Notification to NotificationDTO
             CreateMap<Notification, NotificationDTO>();
+
+            //Map Update request Service to Service Domain Model
+            CreateMap<UpdateServiceRequest,VehicleHireService>().ReverseMap();
+
+            //Map Update request Vehicle to Vehicle Domain Model
+            CreateMap<UpdateVehicleRequest, Vehicle>().ReverseMap();
+
+            // Map Car to CarDTO
+            CreateMap<Car, CarDTO>().ReverseMap();
+
+            //Map Update request Car to Car Domain Model
+            CreateMap<UpdateCarRequest, Car>().ReverseMap();
 
         }
     }
