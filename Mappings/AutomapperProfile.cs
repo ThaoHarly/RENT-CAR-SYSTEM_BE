@@ -82,7 +82,10 @@ namespace RentCarSystem.Mappings
             CreateMap<Individual, IndividualDTO>();
 
             //Map Business to BusinessDTO
-            CreateMap<Business, BusinessDTO>();
+            CreateMap<Business, BusinessDTO>().ReverseMap();
+
+            //Map Update request Business to Business Domain Model
+            CreateMap<Business,UpdateBusinessRequest>().ReverseMap();
 
             //Map ApprovalRequest to ApprovalRequestDTO
             CreateMap<ApprovalRequest, ApprovalRequestDTO>();
@@ -96,12 +99,17 @@ namespace RentCarSystem.Mappings
             //Map Update request Vehicle to Vehicle Domain Model
             CreateMap<UpdateVehicleRequest, Vehicle>().ReverseMap();
 
-            // Map Car to CarDTO
+            //Map Car to CarDTO
             CreateMap<Car, CarDTO>().ReverseMap();
 
             //Map Update request Car to Car Domain Model
             CreateMap<UpdateCarRequest, Car>().ReverseMap();
 
+            //Map Motor DTO to Motor Domain Model
+            CreateMap<Motor, MotorDTO>().ReverseMap();
+
+            //Map Update request Motor to Motor Domain Model
+            CreateMap<UpdateMotorRequest, Motor>().ReverseMap();
         }
     }
 }

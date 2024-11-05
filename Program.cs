@@ -69,6 +69,8 @@ namespace RentCarSystem
             builder.Services.AddScoped<IVehicleHireServiceRepository, VehicleHireServiceRepository>();
             builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
             builder.Services.AddScoped<ICarRepository, CarRepository>();
+            builder.Services.AddScoped<IMotorRepository, MotorRepository>();
+            builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 
             //Add mapping
             builder.Services.AddAutoMapper(typeof(AutomapperProfile));

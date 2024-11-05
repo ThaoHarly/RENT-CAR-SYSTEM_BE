@@ -25,8 +25,8 @@ namespace RentCarSystem.Controllers
         // Get all
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
-                                               [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
-                                               [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
+                                                [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+                                                [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
             var CarDomainModel = await carRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending??true,
                                                                  pageNumber, pageSize);
@@ -66,7 +66,7 @@ namespace RentCarSystem.Controllers
             }
 
             //Map domain model to dto
-            return Ok(mapper.Map<ServiceDTO>(CarDomainModel));
+            return Ok(mapper.Map<CarDTO>(CarDomainModel));
         }
 
         // Delete
@@ -80,7 +80,7 @@ namespace RentCarSystem.Controllers
                 return NotFound();
             }
             // map domain to dto
-            return Ok(mapper.Map<VehicleDTO>(deleteCar));
+            return Ok(mapper.Map<CarDTO>(deleteCar));
         }
 
     }
