@@ -1,0 +1,6 @@
+@RentCarSystem_HostAddress = http://localhost:5219
+
+GET {{RentCarSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
