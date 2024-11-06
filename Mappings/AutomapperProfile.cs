@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
-using RentCarSystem.Models.UpdateRequest;
 
 namespace RentCarSystem.Mappings
 {
@@ -64,7 +63,12 @@ namespace RentCarSystem.Mappings
             CreateMap<Role, RoleDTO>();
 
             //Map Admin to AdminDTO
+<<<<<<< HEAD
+            CreateMap<Admin, AdminDTO>()
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.AdminNavigation));
+=======
             CreateMap<Admin, AdminDTO>();
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
             //Map User to UserDTO
             CreateMap<User, UserDTO>();
@@ -73,52 +77,28 @@ namespace RentCarSystem.Mappings
             CreateMap<Customer, CustomerDTO>();
 
             //Map VehicleHireService to ServiceDTO
-            CreateMap<VehicleHireService, ServiceDTO>().ReverseMap();
-
-            //Map Vehicle to VehicleDTO
-            CreateMap<Vehicle, VehicleDTO>();
+            CreateMap<VehicleHireService, ServiceDTO>();
 
             //Map Individual to IndividualDTO
             CreateMap<Individual, IndividualDTO>();
 
             //Map Business to BusinessDTO
-            CreateMap<Business, BusinessDTO>().ReverseMap();
-
-            //Map Update request Business to Business Domain Model
-            CreateMap<Business,UpdateBusinessRequest>().ReverseMap();
+            CreateMap<Business, BusinessDTO>();
 
             //Map ApprovalRequest to ApprovalRequestDTO
+<<<<<<< HEAD
+            CreateMap<ApprovalRequestDTO, ApprovalRequest>().ReverseMap(); //Map ngược
+=======
             CreateMap<ApprovalRequest, ApprovalRequestDTO>();
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
             //Map Notification to NotificationDTO
             CreateMap<Notification, NotificationDTO>();
 
-            //Map Update request Service to Service Domain Model
-            CreateMap<UpdateServiceRequest,VehicleHireService>().ReverseMap();
+<<<<<<< HEAD
 
-            //Map Update request Vehicle to Vehicle Domain Model
-            CreateMap<UpdateVehicleRequest, Vehicle>().ReverseMap();
-
-            //Map Create request Vehicle to Vehicle Domain Model
-            CreateMap<AddVehicleRequest, Vehicle>().ReverseMap();
-
-            //Map Car Domain Model to CarDTO
-            CreateMap<Car, CarDTO>().ReverseMap();
-
-            //Map Create Car request to Car Domain Model
-            CreateMap<Car, AddCarRequest>().ReverseMap();
-
-            //Map Update request Car to Car Domain Model
-            CreateMap<UpdateCarRequest, Car>().ReverseMap();
-
-            //Map Motor DTO to Motor Domain Model
-            CreateMap<Motor, MotorDTO>().ReverseMap();
-
-            //Map Update request Motor to Motor Domain Model
-            CreateMap<UpdateMotorRequest, Motor>().ReverseMap();
-
-            //Map Create request Motor to Motor Domain Model
-            CreateMap<AddMotorRequest, Motor>().ReverseMap();
+=======
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
         }
     }
 }
