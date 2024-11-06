@@ -5,7 +5,11 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class Admin
 {
+<<<<<<< HEAD
+    public string AdminId { get; set; }
+=======
     public Guid AdminId { get; set; }
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
     public DateTime LastLogin { get; set; }
 

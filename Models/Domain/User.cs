@@ -5,7 +5,11 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class User
 {
+<<<<<<< HEAD
+    public string UserId { get; set; } = Guid.NewGuid().ToString();
+=======
     public Guid UserId { get; set; } = Guid.NewGuid();
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
     public string Name { get; set; } = null!;
 

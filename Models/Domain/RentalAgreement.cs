@@ -5,6 +5,15 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class RentalAgreement
 {
+<<<<<<< HEAD
+    public string AgreementId { get; set; } 
+
+    public string VehicleId { get; set; }
+
+    public string CusId { get; set; } = null!;
+
+    public string ServiceId { get; set; }
+=======
     public Guid AgreementId { get; set; } 
 
     public Guid VehicleId { get; set; }
@@ -12,6 +21,7 @@ public partial class RentalAgreement
     public string CusId { get; set; } = null!;
 
     public Guid ServiceId { get; set; }
+>>>>>>> 245adf983c80f561f0c244ccf5e507c9b3b495e7
 
     public DateOnly? StartDate { get; set; }
 
