@@ -20,7 +20,7 @@ namespace RentCarSystem.Reponsitories
             return motor;
         }
 
-        public async Task<Motor?> DeleteAsync(Guid id)
+        public async Task<Motor?> DeleteAsync(string id)
         {
             var existingMotor = await dbcontext.Motors.FirstOrDefaultAsync(x=>x.MotorId == id);
             if (existingMotor == null)
@@ -38,12 +38,12 @@ namespace RentCarSystem.Reponsitories
             return await dbcontext.Motors.Include("Vehicle").ToListAsync();
         }
 
-        public async Task<Motor?> GetByIdAsync(Guid id)
+        public async Task<Motor?> GetByIdAsync(string id)
         {
             return await dbcontext.Motors.Include("Vehicle").FirstOrDefaultAsync(x=>x.MotorId == id);   
         }
 
-        public async Task<Motor?> UpdateAsync(Guid id, Motor motor)
+        public async Task<Motor?> UpdateAsync(string id, Motor motor)
         {
             var existingMotor = await dbcontext.Motors.FirstOrDefaultAsync(x=>x.MotorId == id);
             if (existingMotor == null)

@@ -37,8 +37,8 @@ namespace RentCarSystem.Controllers
 
         // Get by id
         [HttpGet]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        [Route("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] string id)
         {
             var bnsDomainModel = await businessRepository.GetByIdAsync(id);
             if (bnsDomainModel == null)
@@ -51,9 +51,9 @@ namespace RentCarSystem.Controllers
 
         // Update
         [HttpPut]
-        [Route("{id:guid}")]
+        [Route("{id}")]
         [ValidateModel]
-        public async Task<IActionResult> Update([FromRoute] Guid id, UpdateBusinessRequest updateBusinessRequest)
+        public async Task<IActionResult> Update([FromRoute] string id, UpdateBusinessRequest updateBusinessRequest)
         {
             // map update to domain
             var bnsDomainModel = mapper.Map<Business>(updateBusinessRequest);
@@ -71,8 +71,8 @@ namespace RentCarSystem.Controllers
 
         // Delete
         [HttpDelete]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        [Route("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
             var deleteBns = await businessRepository.DeleteAsync(id);
             if(deleteBns == null)

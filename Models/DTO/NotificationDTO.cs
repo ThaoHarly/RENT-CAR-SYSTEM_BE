@@ -4,7 +4,11 @@ namespace RentCarSystem.Models.DTO
 {
     public class NotificationDTO
     {
-        public Guid NotificationId { get; set; }
+        public string NotificationId { get; set; } = Guid.NewGuid().ToString();
+
+        public string SenderId { get; set; }
+
+        public string ReceiverId { get; set; }
 
         public string Message { get; set; } = null!;
 

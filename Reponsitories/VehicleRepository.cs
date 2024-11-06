@@ -19,7 +19,7 @@ namespace RentCarSystem.Reponsitories
             return vehicle;
         }
 
-        public async Task<Vehicle?> DeleteAsync(Guid id)
+        public async Task<Vehicle?> DeleteAsync(string id)
         {
             var existingVehicle = await dbcontext.Vehicles.FirstOrDefaultAsync(x=>x.VehicleId == id);
             if (existingVehicle == null)
@@ -38,12 +38,12 @@ namespace RentCarSystem.Reponsitories
             return await dbcontext.Vehicles.Include("User").ToListAsync();
         }
 
-        public async Task<Vehicle?> GettByIdAsync(Guid id)
+        public async Task<Vehicle?> GettByIdAsync(string id)
         {
             return await dbcontext.Vehicles.Include("User").FirstOrDefaultAsync(x=>x.VehicleId == id);
         }
 
-        public async Task<Vehicle?> UpdateAsync(Guid id, Vehicle vehicle)
+        public async Task<Vehicle?> UpdateAsync(string id, Vehicle vehicle)
         {
             var existingVehicle = await dbcontext.Vehicles.FirstOrDefaultAsync(x=>x.VehicleId == id);
             if (existingVehicle == null)

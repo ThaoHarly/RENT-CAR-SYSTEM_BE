@@ -12,7 +12,7 @@ namespace RentCarSystem.Reponsitories
             this.dbcontext = dbcontext;
         }
 
-        public async Task<Business?> DeleteAsync(Guid id)
+        public async Task<Business?> DeleteAsync(string id)
         {
             var bnsModel = await dbcontext.Businesses.FirstOrDefaultAsync(x=>x.BsnId == id);
             if (bnsModel == null)
@@ -61,12 +61,12 @@ namespace RentCarSystem.Reponsitories
             
         }
 
-        public async Task<Business?> GetByIdAsync(Guid id)
+        public async Task<Business?> GetByIdAsync(string id)
         {
             return await dbcontext.Businesses.FirstOrDefaultAsync(x=>x.BsnId == id);
         }
 
-        public async Task<Business?> UpdateAsync(Guid id, Business business)
+        public async Task<Business?> UpdateAsync(string id, Business business)
         {
             var Bns = await dbcontext.Businesses.FirstOrDefaultAsync(x=>x.BsnId==id);
             if(Bns == null)

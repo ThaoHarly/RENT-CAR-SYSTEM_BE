@@ -2,9 +2,9 @@
 {
     public class CarDTO
     {
-        public Guid CarId { get; set; }
+        public string CarId { get; set; }
 
-        public VehicleDTO? Vehicle { get; set; }
+        public string VehicleId { get; set; }
 
         public string CarBrand { get; set; } = null!;
 

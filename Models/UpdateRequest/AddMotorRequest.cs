@@ -3,6 +3,6 @@
     public class AddMotorRequest
     {
         public string MotorImage { get; set; } = null!;
-        public Guid VehicleId { get; set; }
+        public string VehicleId { get; set; }
     }
 }

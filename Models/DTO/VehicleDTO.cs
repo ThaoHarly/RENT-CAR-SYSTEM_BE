@@ -4,11 +4,12 @@ namespace RentCarSystem.Models.DTO
 {
     public class VehicleDTO
     {
-        [Required]
-        public Guid VehicleId { get; set; }
-        [Required]
+        public string VehicleId { get; set; }
+
+        public string UserId { get; set; }
+
         public string Category { get; set; } = null!;
-        [Required]
+
         public string LicensePlate { get; set; } = null!;
 
         public string Status { get; set; } = null!;

@@ -4,7 +4,9 @@ namespace RentCarSystem.Models.DTO
 {
     public class BusinessDTO
     {
-        public Guid BsnId { get; set; }
+        public string BsnId { get; set; } = Guid.NewGuid().ToString();
+
+        public string UserId { get; set; }
 
         public string Description { get; set; } = null!;
 

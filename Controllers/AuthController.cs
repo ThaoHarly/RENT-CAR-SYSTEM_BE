@@ -19,12 +19,10 @@ namespace RentCarSystem.Controllers
         private readonly RentCarSystemContext dbContext;
         private readonly IMapper mapper;
         private readonly IRegisterReponsitory registerReponsitory;
+
         private readonly ILoginReponsitory loginReponsitory;
 
         public AuthController(ITokenReponsitory tokenReponsitory, RentCarSystemContext dbContext, IMapper mapper, IRegisterReponsitory registerReponsitory, ILoginReponsitory loginReponsitory)
-
-
-        public AuthController(ITokenReponsitory tokenReponsitory, RentCarSystemContext dbContext, IMapper mapper, IRegisterReponsitory registerReponsitory)
 
         {
             this.tokenReponsitory = tokenReponsitory;
@@ -35,7 +33,7 @@ namespace RentCarSystem.Controllers
             this.loginReponsitory = loginReponsitory;
 
         }
-    
+
 
         //POST: /api/Auth/Register
         [HttpPost]
@@ -49,10 +47,7 @@ namespace RentCarSystem.Controllers
 
                 //Map DTO  to Domain User
                 var userDomain = mapper.Map<User>(registerRequestDTO);
-
-                await registerReponsitory.RegisterUser(userDomain,registerRequestDTO.Password, registerRequestDTO.Roles);
-
-                await registerReponsitory.RegisterUser(userDomain,registerRequestDTO.Password);
+                await registerReponsitory.RegisterUser(userDomain, registerRequestDTO.Password, registerRequestDTO.Roles);
 
 
                 // Map DTO to Role and get UserId
@@ -61,18 +56,17 @@ namespace RentCarSystem.Controllers
                 await registerReponsitory.RegisterRole(roleDomain);
 
                 //Map UserDTO to User and RoleDTO to Role 
-                
+
                 return role switch
                 {
-                    "ADMIN" => await RegisterAdmin(userDomain,roleDomain),
-                    "CUSTOMER" => await RegisterCustomer(userDomain, registerRequestDTO,roleDomain),
+                    "ADMIN" => await RegisterAdmin(userDomain, roleDomain),
+                    "CUSTOMER" => await RegisterCustomer(userDomain, registerRequestDTO, roleDomain),
                     "SERVICE" => await RegisterService(registerRequestDTO, userDomain, roleDomain),
                     _ => BadRequest("Invalid role")
                 };
             }
             return BadRequest("Something went wrong!");
         }
-
 
 
         //POST: /api/Auth/Login
@@ -90,20 +84,20 @@ namespace RentCarSystem.Controllers
                 //Verify password
                 var isPasswordValid = await loginReponsitory.VerifyPassword(user, loginRequestDTO.password);
 
-                if(isPasswordValid)
+                if (isPasswordValid)
                 {
                     //Get Role for this User
                     var role = user.Roles.FirstOrDefault()?.Type;
-                    if(role != null)
+                    if (role != null)
                     {
                         //Create Token 
                         var jwtToken = tokenReponsitory.CreateJWTToken(user, new List<string> { role });
-                        return Ok(new {Token = jwtToken});
+                        return Ok(new { Token = jwtToken });
                     }
                 }
                 return Unauthorized("Incorrect password ...");
             }
-            
+
             return Unauthorized("User not existing ...");
 
         }
@@ -131,7 +125,7 @@ namespace RentCarSystem.Controllers
                 User = userDTO,
                 Admin = adminDTO,
                 Role = roleDTO
-            }; 
+            };
             return Ok(result);
         }
 
@@ -228,7 +222,6 @@ namespace RentCarSystem.Controllers
 
                     AdminId = admId, //convert string to Guid Guid.Parse(admId),
 
-                    AdminId = Guid.Parse(admId), //convert string to Guid
                     BsnId = businessDomain.BsnId,
                     RequestDay = DateOnly.FromDateTime(DateTime.Now),
                     Status = "PENDING"
@@ -240,8 +233,9 @@ namespace RentCarSystem.Controllers
                 var notificationDefault = new Notification
                 {
                     SenderId = userDomain.UserId,
+
                     ReceiverId = admId,//Guid.Parse(admId),
-                    ReceiverId = Guid.Parse(admId),
+
                     Message = "New Business Registration requires approval.",
                     NotificationDate = DateOnly.FromDateTime(DateTime.Now)
                 };
@@ -276,7 +270,7 @@ namespace RentCarSystem.Controllers
                     ApprovalRequest = approvalRequestDomain,
                     Notification = notificationDTO
                 };
-                
+
                 return Ok(result);
             }
             return BadRequest();

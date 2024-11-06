@@ -45,8 +45,8 @@ namespace RentCarSystem.Controllers
 
         // Get By Id
         [HttpGet]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        [Route("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] string id)
         {
             var VehicleDomainModel = await vehicleRepository.GettByIdAsync(id);
             if(VehicleDomainModel == null)
@@ -59,9 +59,9 @@ namespace RentCarSystem.Controllers
 
         // Update
         [HttpPut]
-        [Route("{id:guid}")]
+        [Route("{id}")]
         [ValidateModel]
-        public async Task<IActionResult> Update([FromRoute] Guid id, UpdateVehicleRequest updateVehicleRequest)
+        public async Task<IActionResult> Update([FromRoute] string id, UpdateVehicleRequest updateVehicleRequest)
         {
             // Map Update to domain model
             var VehicleDomainModel = mapper.Map<Vehicle>(updateVehicleRequest);
@@ -80,8 +80,8 @@ namespace RentCarSystem.Controllers
 
         // Delete
         [HttpDelete]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [Route("{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
             var deleteVehicle = await vehicleRepository.DeleteAsync(id);
             if(deleteVehicle == null)

@@ -9,9 +9,9 @@ namespace RentCarSystem.Reponsitories
         Task<List<Car>> GetAllAsync(string? filterOn = null, string? filterQuery = null,
                                     string? sortBy = null, bool isAscending = true,
                                     int pageNumber = 1, int pageSize = 1000 );
-        Task<Car?> GetByIdAsync(Guid id);
-        Task<Car?> UpdateAsync(Guid id, Car car);
-        Task<Car?> DeleteAsync(Guid id);
+        Task<Car?> GetByIdAsync(string id);
+        Task<Car?> UpdateAsync(string id, Car car);
+        Task<Car?> DeleteAsync(string id);
 
     }
 }
