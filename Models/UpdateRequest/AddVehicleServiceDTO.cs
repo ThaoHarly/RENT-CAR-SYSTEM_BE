@@ -1,4 +1,4 @@
-﻿namespace RentCarSystem.Models.DTO
+﻿namespace RentCarSystem.Models.UpdateRequest
 {
     public class AddVehicleServiceDTO
     {

@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RentCarSystem.CustomActionFilter;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
 using RentCarSystem.Models.UpdateRequest;
 using RentCarSystem.Reponsitories;
+using System.Data;
+using System.Security.Claims;
 
 namespace RentCarSystem.Controllers
 {
@@ -15,81 +17,327 @@ namespace RentCarSystem.Controllers
     {
         private readonly IMapper mapper;
         private readonly IVehicleRepository vehicleRepository;
+        private readonly RentCarSystemContext dbContext;
+        private readonly IMotorRepository motorRepository;
+        private readonly ICarRepository carReponsitory;
 
-        public VehicleController(IMapper mapper, IVehicleRepository vehicleRepository)
+        public VehicleController(IMapper mapper, IVehicleRepository vehicleRepository, RentCarSystemContext dbContext, IMotorRepository motorRepository, ICarRepository carReponsitory)
         {
             this.mapper = mapper;
             this.vehicleRepository = vehicleRepository;
+            this.dbContext = dbContext;
+            this.motorRepository = motorRepository;
+            this.carReponsitory = carReponsitory;
         }
 
         // Create
+        [Authorize(Policy = "BusinessWithAcceptStatus")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AddVehicleRequest addVehicleRequest)
+        [Route("AddVehicle")]
+        public async Task<IActionResult> Create([FromBody] AddVehicleServiceDTO addVehicleServiceDTO)
         {
-            var VehicleDomainModel = mapper.Map<Vehicle>(addVehicleRequest);
+            var category = addVehicleServiceDTO.Category.ToUpper();
+            if (category == "MOTOR" || category == "CAR")
+            {
+                //Map DTO to Vehicle domain
+                var vehicleDomain = mapper.Map<Vehicle>(addVehicleServiceDTO);
 
-            VehicleDomainModel = await vehicleRepository.CreateAsync(VehicleDomainModel);
+                //Get userId is logining
+                var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // map domain to dto
-            return Ok(mapper.Map<VehicleDTO>(VehicleDomainModel));
+                vehicleDomain.UserId = userId;
+                vehicleDomain = await vehicleRepository.CreateAsync(vehicleDomain);
+
+                return category switch
+                {
+                    "MOTOR" => await AddMotor(vehicleDomain, addVehicleServiceDTO),
+                    "CAR" => await AddCar(vehicleDomain, addVehicleServiceDTO),
+                    _ => BadRequest("Invalid category")
+                };
+
+            }
+
+            return BadRequest("Something went wrong ...");
         }
+
+
 
         // Get all
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [Route("GetAllVehicle")]
+        public async Task<IActionResult> GetAllVehicle(int pageNumber = 1, int pageSize = 10)
         {
-            var vehicleDomainModel = await vehicleRepository.GettAllAsync();
-            // map domain to dto
-            return Ok(mapper.Map<List<Vehicle>>(vehicleDomainModel));
-        }
+            // Đảm bảo pageNumber và pageSize hợp lệ
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            pageSize = pageSize < 1 ? 10 : pageSize;
 
-        // Get By Id
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] string id)
-        {
-            var VehicleDomainModel = await vehicleRepository.GettByIdAsync(id);
-            if(VehicleDomainModel == null)
+            //get all vehicle sau khi phân trang
+            var vehicleDomain = await vehicleRepository.GetPagedVehiclesAsync(pageNumber, pageSize);
+
+            if (vehicleDomain == null || !vehicleDomain.Any())
             {
-                return NotFound();
+                return NotFound("No vehicles found ...");
             }
-            // map domain to dto
-            return Ok(mapper.Map<VehicleDTO>(VehicleDomainModel));  
+
+            //Vehicle List
+            var vehicleDetailsList = new List<object>();
+
+            foreach (var vehicle in vehicleDomain)
+            {
+                if (vehicle.Category.ToUpper() == "CAR")
+                {
+                    var carDomain = await carReponsitory.GetCarByIdVehicle(vehicle.VehicleId);
+
+                    //Map Vehicle Domain to VehicleDTO
+                    var vehicleDTO = mapper.Map<VehicleDTO>(vehicle);
+
+                    //Map Car Domain to Car DTO
+                    var carDTO = mapper.Map<CarDTO>(carDomain);
+
+                    //Add to vehicleDetailsList
+                    vehicleDetailsList.Add(new
+                    {
+                        Vehicle = vehicleDTO,
+                        Car = carDTO
+                    });
+                }
+                else if (vehicle.Category.ToUpper() == "MOTOR")
+                {
+                    var motorDomain = await motorRepository.GetByVehicleIdAsync(vehicle.VehicleId);
+
+                    //Map Vehicle Domain to VehicleDTO
+                    var vehicleDTO = mapper.Map<VehicleDTO>(vehicle);
+
+                    //Map Car Domain to Car DTO
+                    var motorDTO = mapper.Map<MotorDTO>(motorDomain);
+
+                    //Add to vehicleDetailsList
+                    vehicleDetailsList.Add(new
+                    {
+                        Vehicle = vehicleDTO,
+                        Moto = motorDTO
+                    });
+                }
+            }
+            return Ok(new
+            {
+                totalVehicleCount = await vehicleRepository.GetTotalCountAsync(),
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                data = vehicleDetailsList
+            });
         }
 
-        // Update
+
+        //Update
+        [Authorize(Policy = "BusinessWithAcceptStatus")]
         [HttpPut]
-        [Route("{id}")]
-        [ValidateModel]
-        public async Task<IActionResult> Update([FromRoute] string id, UpdateVehicleRequest updateVehicleRequest)
+        [Route("UpdateVehicle")]
+        public async Task<IActionResult> Update(string VehicleId, UpdateVehicleRequestDTO updateVehicleRequestDTO)
         {
-            // Map Update to domain model
-            var VehicleDomainModel = mapper.Map<Vehicle>(updateVehicleRequest);
+            //Check xem phải chủ sở hữu của xe không
+            var ownerShipResult = await CheckOwnerShip(VehicleId);
 
-            VehicleDomainModel = await vehicleRepository.UpdateAsync(id, VehicleDomainModel);
-
-            if (VehicleDomainModel == null)
+            if (ownerShipResult is ObjectResult result && (bool)result.Value == false)
             {
-                return NotFound();
+                return Unauthorized("You are not the owner of this vehicle");
             }
 
-            //Map domain model to dto
-            return Ok(mapper.Map<ServiceDTO>(VehicleDomainModel));
+            //Get data from Vehicle Table
+            var vehicle = await vehicleRepository.GettByIdAsync(VehicleId);
+
+            if (vehicle.Category.ToUpper() == "CAR")
+            {
+                //Map carDomain to updateVehicleRequestDTO
+                var carDomain = mapper.Map<Car>(updateVehicleRequestDTO);
+                //Update Car
+                carDomain = await carReponsitory.UpdateByIdVehicle(VehicleId, carDomain);
+
+
+                //Map Vehicle Domain to updateVehicleRequestDTO
+                var vehicleDomain = mapper.Map<Vehicle>(updateVehicleRequestDTO);
+                //Update Vehicle
+                vehicleDomain = await vehicleRepository.UpdateAsync(VehicleId, vehicleDomain);
+
+                //Map VehicleDomain to VehicleDTO
+                var vehicleDTO = mapper.Map<VehicleDTO>(vehicleDomain);
+
+                //Map CarDomain to CarDTO
+                var carDTO = mapper.Map<CarDTO>(carDomain);
+
+                //Information about Vehicle deleted
+                var resultVehicle = new
+                {
+                    Message = "You update success!",
+                    Vehicle = vehicleDTO,
+                    Car = carDTO
+                };
+                return Ok(resultVehicle);
+            }
+            else if (vehicle.Category.ToUpper() == "MOTOR")
+            {
+                //Map motorDomain to updateVehicleRequestDTO
+                var motorDomain = mapper.Map<Motor>(updateVehicleRequestDTO);
+                //Update Motor
+                motorDomain = await motorRepository.UpdateByIdVehicleAsync(VehicleId, motorDomain);
+
+
+                //Map Vehicle Domain to updateVehicleRequestDTO
+                var vehicleDomain = mapper.Map<Vehicle>(updateVehicleRequestDTO);
+                //Update Vehicle
+                vehicleDomain = await vehicleRepository.UpdateAsync(VehicleId, vehicleDomain);
+
+                //Map VehicleDomain to VehicleDTO
+                var vehicleDTO = mapper.Map<VehicleDTO>(vehicleDomain);
+
+                //Map MotorDomain to CarDTO
+                var motorDTO = mapper.Map<MotorDTO>(motorDomain);
+
+                //Information about Vehicle deleted
+                var resultVehicle = new
+                {
+                    Message = "You update success!",
+                    Vehicle = vehicleDTO,
+                    Moto = motorDTO
+                };
+                return Ok(resultVehicle);
+            }
+            return BadRequest("some thing was wrong ... ");
+        }
+
+        //Delete 
+        [Authorize(Policy = "BusinessWithAcceptStatus")]
+        [HttpDelete]
+        [Route("DeleteVehicle/{VehicleId}")]
+        public async Task<IActionResult> DeleteById(string VehicleId)
+        {
+            //Check xem phải chủ sở hữu của xe không
+            var ownerShipResult = await CheckOwnerShip(VehicleId);
+
+            if (ownerShipResult is ObjectResult result && (bool)result.Value == false)
+            {
+                return Unauthorized("You are not the owner of this vehicle");
+            }
+
+            //Get data from Vehicle Table
+            var vehicle = await vehicleRepository.GettByIdAsync(VehicleId);
+
+            if (vehicle.Category.ToUpper() == "CAR")
+            {
+                //Delete Car 
+                var carDomain = await carReponsitory.DeleteByIdVehicleAsync(VehicleId);
+
+                //Delete Vehicle
+                var vehicleDomain = await vehicleRepository.DeleteByIdAsync(VehicleId);
+
+                //Map VehicleDomain to VehicleDTO
+                var vehicleDTO = mapper.Map<VehicleDTO>(vehicleDomain);
+
+                //Map CarDomain to CarDTO
+                var carDTO = mapper.Map<CarDTO>(carDomain);
+
+                //Information about Vehicle deleted
+                var resultVehicle = new
+                {
+                    Message = "You deleted success!",
+                    Vehicle = vehicleDTO,
+                    Car = carDTO
+                };
+                return Ok(resultVehicle);
+            }
+            else if (vehicle.Category.ToUpper() == "MOTOR")
+            {
+
+                //Delete Motor
+                var motorDomain = await motorRepository.DeleteByVehicleIdAsync(VehicleId);
+
+                //Delete Vehicle
+                var vehicleDomain = await vehicleRepository.DeleteByIdAsync(VehicleId);
+
+                //Map VehicleDomain to VehicleDTO
+                var vehicleDTO = mapper.Map<VehicleDTO>(vehicleDomain);
+
+                //Map MotorDomain to CarDTO
+                var motorDTO = mapper.Map<MotorDTO>(motorDomain);
+
+                //Information about Vehicle deleted
+                var resultVehicle = new
+                {
+                    Message = "You deleted success!",
+                    Vehicle = vehicleDTO,
+                    Moto = motorDTO
+                };
+                return Ok(resultVehicle);
+            }
+            return BadRequest("some thing was wrong ... ");
         }
 
 
-        // Delete
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> Delete(string id)
+
+        private async Task<IActionResult> AddMotor(Vehicle vehicleDomain, AddVehicleServiceDTO addVehicleServiceDTO)
         {
-            var deleteVehicle = await vehicleRepository.DeleteAsync(id);
-            if(deleteVehicle == null)
+            //Map Motor to Vehicle Domain
+            var motorDomain = mapper.Map<Motor>(addVehicleServiceDTO);
+            motorDomain.VehicleId = vehicleDomain.VehicleId;
+            await motorRepository.CreateAsync(motorDomain);
+
+            //Map VehicleDomain to VehicleDTO
+            var vehicleDTO = mapper.Map<VehicleDTO>(vehicleDomain);
+
+            //Map MotorDomain to MotorDTO
+            var motoDTO = mapper.Map<MotorDTO>(motorDomain);
+
+            //Information about the Motor
+            var result = new
+            {
+                Vehicle = vehicleDTO,
+                Motor = motoDTO
+            };
+
+            return Ok(result);
+        }
+
+        private async Task<IActionResult> AddCar(Vehicle vehicleDomain, AddVehicleServiceDTO addVehicleServiceDTO)
+        {
+            //Map Car to Vehicle Domain
+            var carDomain = mapper.Map<Car>(addVehicleServiceDTO);
+            carDomain.VehicleId = vehicleDomain.VehicleId;
+            await carReponsitory.CreateAsync(carDomain);
+
+
+            //Map VehicleDomain to VehicleDTO
+            var vehicleDTO = mapper.Map<VehicleDTO>(vehicleDomain);
+
+            //Map CarDomain to CarDTO
+            var carDTO = mapper.Map<CarDTO>(carDomain);
+
+            //Information about the Car
+            var result = new
+            {
+                Vehicle = vehicleDTO,
+                Car = carDTO
+            };
+
+            return Ok(result);
+        }
+
+        private async Task<IActionResult> CheckOwnerShip(string VehicleId)
+        {
+            //Get userId is logining
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            //Find Vehicle by VehicleId
+            var vehicle = await vehicleRepository.GettByIdAsync(VehicleId);
+            if (vehicle == null)
             {
                 return NotFound();
             }
-            // map domain to dto
-            return Ok(mapper.Map<VehicleDTO>(deleteVehicle));
+
+            if (vehicle.UserId == userId)
+            {
+                return Ok(true); // User is the owner
+            }
+            return Ok(false);// User is not the owner
         }
     }
 }

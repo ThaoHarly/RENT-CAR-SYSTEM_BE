@@ -1,4 +1,6 @@
-﻿namespace RentCarSystem.Models.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RentCarSystem.Models.UpdateRequest
 {
     public class UpdateVehicleRequestDTO
     {
@@ -13,7 +15,7 @@
         public double Range { get; set; }
 
         public double EngineCapacity { get; set; }
-        public string  status { get; set; }
+        public string status { get; set; }
 
 
         //Is Motor

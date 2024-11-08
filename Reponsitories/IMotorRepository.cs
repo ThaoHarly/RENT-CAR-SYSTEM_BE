@@ -6,8 +6,8 @@ namespace RentCarSystem.Reponsitories
     {
         Task<Motor> CreateAsync(Motor motor);
         Task<List<Motor>> GetAllAsync();
-        Task<Motor?> GetByIdAsync(string id);
-        Task<Motor?> UpdateAsync(string id, Motor motor);
-        Task<Motor?> DeleteAsync(string id);
+        Task<Motor?> GetByVehicleIdAsync(string vehicleId);
+        Task<Motor?> UpdateByIdVehicleAsync(string id, Motor motor);
+        Task<Motor?> DeleteByVehicleIdAsync(string vehicleId);
     }
 }

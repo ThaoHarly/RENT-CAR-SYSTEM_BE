@@ -1,57 +1,70 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Models.Domain;
+using System.Security.Claims;
 
 namespace RentCarSystem.Reponsitories
 {
-    public class VehicleRepository: IVehicleRepository
+    public class VehicleRepository : IVehicleRepository
     {
-        private readonly RentCarSystemContext dbcontext;
+        private readonly RentCarSystemContext dbContext;
 
-        public VehicleRepository(RentCarSystemContext dbcontext)
+        public VehicleRepository(RentCarSystemContext dbContext)
         {
-            this.dbcontext = dbcontext;
+            this.dbContext = dbContext;
         }
 
         public async Task<Vehicle> CreateAsync(Vehicle vehicle)
         {
-            await dbcontext.AddAsync(vehicle);
-            await dbcontext.SaveChangesAsync();
+            await dbContext.AddAsync(vehicle);
+            await dbContext.SaveChangesAsync();
             return vehicle;
         }
 
-        public async Task<Vehicle?> DeleteAsync(string id)
+        public async Task<Vehicle?> DeleteByIdAsync(string vehicleId)
         {
-            var existingVehicle = await dbcontext.Vehicles.FirstOrDefaultAsync(x=>x.VehicleId == id);
+            var existingVehicle = await dbContext.Vehicles.FirstOrDefaultAsync(x => x.VehicleId == vehicleId);
             if (existingVehicle == null)
             {
                 return null;
             }
-            // delete
-            dbcontext.Vehicles.Remove(existingVehicle);
-            await dbcontext.SaveChangesAsync();
+            // delete vehicle
+            dbContext.Vehicles.Remove(existingVehicle);
+            await dbContext.SaveChangesAsync();
             return existingVehicle;
-            
         }
 
-        public async Task<List<Vehicle>> GettAllAsync()
+        public async Task<IEnumerable<Vehicle>> GetPagedVehiclesAsync(int pageNumber, int pageSize)
         {
-            return await dbcontext.Vehicles.Include("User").ToListAsync();
+            return await dbContext.Vehicles.Skip((pageNumber - 1) * pageSize) // Ví dụ nếu ở trong 3, với size là 10, thì bỏ qua 20 datas trước đó
+                                            .Take(pageSize)
+                                            .ToListAsync();
+        }
+
+        public Task<List<Vehicle>> GettAllAsync()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<Vehicle?> GettByIdAsync(string id)
         {
-            return await dbcontext.Vehicles.Include("User").FirstOrDefaultAsync(x=>x.VehicleId == id);
+            return await dbContext.Vehicles.Include("User").FirstOrDefaultAsync(x => x.VehicleId == id);
         }
 
-        public async Task<Vehicle?> UpdateAsync(string id, Vehicle vehicle)
+        public async Task<int> GetTotalCountAsync()
         {
-            var existingVehicle = await dbcontext.Vehicles.FirstOrDefaultAsync(x=>x.VehicleId == id);
+            //Đếm coi có bao nhiêu xe trong db
+            return await dbContext.Vehicles.CountAsync();
+        }
+
+        public async Task<Vehicle?> UpdateAsync(string vehicleId, Vehicle vehicle)
+        {
+            var existingVehicle = await dbContext.Vehicles.FirstOrDefaultAsync(x => x.VehicleId == vehicleId);
             if (existingVehicle == null)
             {
-                return null;    
+                return null;
             }
 
-            existingVehicle.Category = vehicle.Category;
+            // update vehicle
             existingVehicle.LicensePlate = vehicle.LicensePlate;
             existingVehicle.Status = vehicle.Status;
             existingVehicle.PricePerDay = vehicle.PricePerDay;
@@ -59,9 +72,9 @@ namespace RentCarSystem.Reponsitories
             existingVehicle.Range = vehicle.Range;
             existingVehicle.EngineCapacity = vehicle.EngineCapacity;
 
-            await dbcontext.SaveChangesAsync();
-            return existingVehicle;
 
+            await dbContext.SaveChangesAsync();
+            return existingVehicle;
         }
     }
 }

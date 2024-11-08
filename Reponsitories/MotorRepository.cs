@@ -6,46 +6,46 @@ namespace RentCarSystem.Reponsitories
 {
     public class MotorRepository : IMotorRepository
     {
-        private readonly RentCarSystemContext dbcontext;
+        private readonly RentCarSystemContext dbContext;
 
-        public MotorRepository(RentCarSystemContext dbcontext)
+        public MotorRepository(RentCarSystemContext dbContext)
         {
-            this.dbcontext = dbcontext;
+            this.dbContext = dbContext;
         }
 
         public async Task<Motor> CreateAsync(Motor motor)
         {
-            await dbcontext.AddAsync(motor);
-            await dbcontext.SaveChangesAsync();
+            await dbContext.AddAsync(motor);
+            await dbContext.SaveChangesAsync();
             return motor;
         }
 
-        public async Task<Motor?> DeleteAsync(string id)
+        public async Task<Motor?> DeleteByVehicleIdAsync(string vehicleId)
         {
-            var existingMotor = await dbcontext.Motors.FirstOrDefaultAsync(x=>x.MotorId == id);
+            var existingMotor = await dbContext.Motors.FirstOrDefaultAsync(x => x.VehicleId == vehicleId);
             if (existingMotor == null)
             {
                 return null;
             }
-            // delete 
-            dbcontext.Motors.Remove(existingMotor);
-            await dbcontext.SaveChangesAsync();
+            // delete motor
+            dbContext.Motors.Remove(existingMotor);
+            await dbContext.SaveChangesAsync();
             return existingMotor;
         }
 
         public async Task<List<Motor>> GetAllAsync()
         {
-            return await dbcontext.Motors.Include("Vehicle").ToListAsync();
+            return await dbContext.Motors.Include("Vehicle").ToListAsync();
         }
 
-        public async Task<Motor?> GetByIdAsync(string id)
+        public async Task<Motor?> GetByVehicleIdAsync(string vehicleId)
         {
-            return await dbcontext.Motors.Include("Vehicle").FirstOrDefaultAsync(x=>x.MotorId == id);   
+            return await dbContext.Motors.FirstOrDefaultAsync(x => x.VehicleId == vehicleId);
         }
 
-        public async Task<Motor?> UpdateAsync(string id, Motor motor)
+        public async Task<Motor?> UpdateByIdVehicleAsync(string vehicleId, Motor motor)
         {
-            var existingMotor = await dbcontext.Motors.FirstOrDefaultAsync(x=>x.MotorId == id);
+            var existingMotor = await dbContext.Motors.FirstOrDefaultAsync(x => x.VehicleId == vehicleId);
             if (existingMotor == null)
             {
                 return null;
@@ -53,7 +53,7 @@ namespace RentCarSystem.Reponsitories
             // update infor
             existingMotor.MotorImage = motor.MotorImage;
             // save and return
-            await dbcontext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
             return existingMotor;
         }
 
