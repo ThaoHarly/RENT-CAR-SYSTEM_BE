@@ -11,7 +11,7 @@ namespace RentCarSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Policy = "RequireAdminRole")]
+    [Authorize(Policy = "RequireAdminRole")]
     public class AdminController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -28,7 +28,6 @@ namespace RentCarSystem.Controllers
 
 
         //GET :api/Admin/
-        [Authorize(Policy = "BusinessWithAcceptStatus")] //test thử authorization, nhớ xóa
         [HttpGet]
         public async Task<IActionResult> getAdmin()
         {

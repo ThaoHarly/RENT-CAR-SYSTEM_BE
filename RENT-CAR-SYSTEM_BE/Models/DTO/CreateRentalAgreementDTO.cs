@@ -1,0 +1,11 @@
+﻿namespace RentCarSystem.Models.DTO
+{
+    public class CreateRentalAgreementDTO
+    {
+        public string VehicleId { get; set; }
+        public DateOnly? StartDate { get; set; }
+
+        public DateOnly? EndDate { get; set; }
+        public string? PaymentMethod { get; set; }
+    }
+}

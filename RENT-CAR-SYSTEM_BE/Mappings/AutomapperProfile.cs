@@ -160,6 +160,24 @@ namespace RentCarSystem.Mappings
                .ForMember(dest => dest.ChargingTime, opt => opt.MapFrom(src => src.ChargingTime))
                .ReverseMap();
 
+
+            // Map CreateRentalAgreementDTO to RentalAgreementDomain
+            CreateMap<CreateRentalAgreementDTO, RentalAgreement>()
+               .ForMember(dest => dest.AgreementId, opt => opt.Ignore()) // tự sinh
+               .ForMember(dest => dest.VehicleId, opt => opt.Ignore()) // bo qua
+               .ForMember(dest => dest.CusId, opt => opt.Ignore()) // bo qua
+               .ForMember(dest => dest.ServiceId, opt => opt.Ignore()) // bo qua
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+                .ForMember(dest => dest.Status, opt => opt.Ignore()) // bo qua
+                .ForMember(dest => dest.DepositAmount, opt => opt.Ignore()) // bo qua
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod))
+                .ReverseMap();
+
+            // Map RentalAgreementDTO to RentalAgreementDomain
+            CreateMap<RentalAgreementDTO, RentalAgreement>().ReverseMap();
+
+
         }
     }
 }

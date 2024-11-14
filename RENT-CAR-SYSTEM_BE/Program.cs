@@ -75,6 +75,7 @@ namespace RentCarSystem
             builder.Services.AddScoped<IVehicleReponsitory, VehicleReponsitory>();
             builder.Services.AddScoped<IMotorRepository, MotorRepository>();
             builder.Services.AddScoped<ICarReponsitory, CarReponsitory>();
+            builder.Services.AddScoped<IRentalAgreementReponsitory, RentalAgreementReponsitory>();
 
             //Add Hashpassword
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -134,6 +135,10 @@ namespace RentCarSystem
                 options.AddPolicy("Service", policy =>
                      policy.RequireAssertion(context =>
                         context.User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value.ToLower() == "service")));
+
+                options.AddPolicy("Customer", policy =>
+                    policy.RequireAssertion(context =>
+                        context.User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value.ToLower() == "customer")));
             });
             builder.Services.AddAuthorization(options =>
             {

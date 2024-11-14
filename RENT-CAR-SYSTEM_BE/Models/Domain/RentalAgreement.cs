@@ -5,7 +5,7 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class RentalAgreement
 {
-    public string AgreementId { get; set; } 
+    public string AgreementId { get; set; } = Guid.NewGuid().ToString();
 
     public string VehicleId { get; set; }
 

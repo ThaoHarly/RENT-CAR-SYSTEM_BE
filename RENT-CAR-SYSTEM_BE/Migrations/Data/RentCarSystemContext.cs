@@ -312,7 +312,7 @@ public partial class RentCarSystemContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("AgreementID");
             entity.Property(e => e.CusId)
-                .HasMaxLength(12)
+                .HasMaxLength(36)
                 .IsUnicode(false)
                 .HasColumnName("CusID");
             entity.Property(e => e.PaymentMethod).HasMaxLength(10);
