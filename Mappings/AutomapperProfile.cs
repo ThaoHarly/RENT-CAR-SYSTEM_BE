@@ -89,6 +89,26 @@ namespace RentCarSystem.Mappings
             //Map Notification to NotificationDTO
             CreateMap<Notification, NotificationDTO>();
 
+            //Map Review to ReviewDTO
+            CreateMap<Review, ReviewDTO>().ReverseMap();
+
+
+            // Map AddReviewDTO to Review
+            CreateMap<AddReviewDTO, Review>()
+                .ForMember(dest => dest.ReviewId, opt => opt.Ignore()) // tự động sinh
+                .ForMember(dest => dest.CusId, opt => opt.Ignore()) // gán lúc đăng nhập (ví dụ từ token)
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
+                .ForMember(dest => dest.ReviewDate, opt => opt.MapFrom(src => src.ReviewDate));
+
+            // Map UpdateReviewDTO to Review
+            CreateMap<UpdateReviewDTO, Review>()
+                .ForMember(dest => dest.ReviewId, opt => opt.Ignore()) // tự động sinh, không ánh xạ
+                .ForMember(dest => dest.CusId, opt => opt.Ignore()) // không thay đổi CusId, giữ nguyên
+                .ForMember(dest => dest.VehicleId, opt => opt.Ignore()) // không thay đổi VehicleId, giữ nguyên
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating)) // ánh xạ Rating
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment)) // ánh xạ Comment
+                .ForMember(dest => dest.ReviewDate, opt => opt.MapFrom(src => src.ReviewDate)); // ánh xạ ReviewDate
 
             //Map AddVehicleServiceDTO to Vehicle
             CreateMap<AddVehicleServiceDTO, Vehicle>()
