@@ -4,6 +4,7 @@ namespace RentCarSystem.Models.DTO
 {
     public class IndividualDTO
     {
-        public Guid IdvId { get; set; }
+        public string IdvId { get; set; }
+        public string UserId { get; set; }
     }
 }
