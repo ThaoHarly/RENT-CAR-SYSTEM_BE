@@ -68,12 +68,14 @@ namespace RentCarSystem.Controllers
             return BadRequest("Something went wrong!");
         }
 
+
+
         //[HttpGet]
         //[Authorize]
         //public async Task<IActionResult> GetUserInfo()
         //{
         //    // Lấy UserId từ claim trong token
-        //    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        //    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)  ;
         //    if (userIdClaim == null)
         //    {
         //        return Unauthorized("Không thể xác định thông tin người dùng từ token.");
@@ -94,89 +96,178 @@ namespace RentCarSystem.Controllers
         //    // Lấy thông tin vai trò từ đối tượng User
         //    var roles = user.Roles.Select(r => r.Type).ToList();
 
-        //    return Ok(mapper.Map<UserDTO>(user));
+        //    var userInfo = mapper.Map<UserDTO>(user);
+
+        //    // Lấy thông tin 
+        //    if(roles.Any(x => x.Equals("Customer", StringComparison.OrdinalIgnoreCase)))
+        //    {
+        //        var customerInfor = await dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == userId);
+        //        if (customerInfor == null)
+        //        {
+        //            return NotFound("Không tìm thấy thông tin khách hàng.");
+        //        }
+
+        //        return Ok(new
+        //        {
+        //            User = userInfo,
+        //            CustomerDTO = new
+        //            {
+        //                LicenseId = customerInfor.LicenseId,
+        //                UserId = customerInfor.UserId,
+        //                Class = customerInfor.Class,
+        //                Expire = customerInfor.Expire,
+        //                Image = customerInfor.Image,
+        //                Bills = new List<object>(), // Giả sử có thể lấy danh sách hóa đơn từ database
+        //                RentalAgreements = new List<object>(), // Giả sử có thể lấy danh sách hợp đồng cho thuê từ database
+        //                Reviews = new List<object>() // Giả sử có thể lấy danh sách đánh giá từ database
+        //            }
+        //        });
+        //    }
+        //    else if(roles.Any(x => x.Equals("Service", StringComparison.OrdinalIgnoreCase)))
+        //    {
+        //        // Lấy thông tin ServiceType từ bảng VehicleHireServices
+        //        var vehicleHireService = await dbContext.VehicleHireServices.FirstOrDefaultAsync(x => x.UserId == user.UserId);
+        //        if(vehicleHireService != null)
+        //        {
+        //            if(vehicleHireService.ServiceType.Equals("Business",StringComparison.OrdinalIgnoreCase))
+        //            {
+        //                var businessInfor = await dbContext.Businesses.FirstOrDefaultAsync(x => x.UserId.ToString() == userId);
+        //                return Ok(new
+        //                {
+        //                    User = userInfo,
+        //                    BusinessDTO = new
+        //                    {
+        //                        BsnId = businessInfor.BsnId,
+        //                        Description = businessInfor.Description,
+        //                        BusinessImg = businessInfor.BusinessImg,
+        //                        RegistrationDate = businessInfor.RegistrationDate,
+        //                        Vat = businessInfor.Vat,
+        //                        IssuingLocation = businessInfor.IssuingLocation,
+        //                        DateOfIssue = businessInfor.DateOfIssue
+        //                    },
+        //                    VehicleHireService = new
+        //                    {
+        //                        UserId = vehicleHireService.UserId,
+        //                        ServiceType = vehicleHireService.ServiceType
+        //                    }
+        //                });
+        //            }
+        //            else if (vehicleHireService.ServiceType.Equals("Individual", StringComparison.OrdinalIgnoreCase))
+        //            {
+        //                var individualInfo = await dbContext.Individuals.FirstOrDefaultAsync(i => i.UserId == user.UserId);
+        //                return Ok(new
+        //                {
+        //                    User = userInfo,
+        //                    IndividualDTO = new
+        //                    {
+        //                        IdvId = individualInfo.IdvId,
+        //                        UserId = individualInfo.UserId,
+        //                        ServiceType = vehicleHireService.ServiceType
+        //                    },
+        //                    VehicleHireService = new
+        //                    {
+        //                        UserId = vehicleHireService.UserId,
+        //                        ServiceType = vehicleHireService.ServiceType
+        //                    }
+        //                });
+        //            }
+        //            else
+        //            {
+        //                return Ok(new { User = userInfo, Message = "Không xác định được loại dịch vụ." });
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return NotFound("Không tìm thấy");
+        //        }
+        //    }
+
+        //    // Nếu không có cái nào khớp
+        //    return Ok(new { User = userInfo });
         //}
 
 
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetUserInfo()
+        //POST: /api/Auth/Login
+
+
+        [HttpPost]
+        [Route("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
-            // Lấy UserId từ claim trong token
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)  ;
-            if (userIdClaim == null)
-            {
-                return Unauthorized("Không thể xác định thông tin người dùng từ token.");
-            }
-
-            var userId = userIdClaim.Value;
-
-            // Truy vấn thông tin người dùng dựa trên UserId
+            // Tìm người dùng dựa trên email
             var user = await dbContext.Users
-                                      .Include(u => u.Roles)
-                                      .FirstOrDefaultAsync(u => u.UserId.ToString() == userId);
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Email == loginRequestDTO.email);
 
             if (user == null)
             {
-                return NotFound("Không tìm thấy người dùng.");
+                return Unauthorized("Người dùng không tồn tại.");
             }
 
-            // Lấy thông tin vai trò từ đối tượng User
-            var roles = user.Roles.Select(r => r.Type).ToList();
+            // Kiểm tra mật khẩu
+            var isPasswordValid = await loginReponsitory.VerifyPassword(user, loginRequestDTO.password);
 
+            if (!isPasswordValid)
+            {
+                return Unauthorized("Mật khẩu không đúng.");
+            }
+
+            // Lấy vai trò của người dùng
+            var roles = user.Roles.Select(r => r.Type).ToList();
+            if (!roles.Any())
+            {
+                return Unauthorized("Người dùng không có vai trò nào được gán.");
+            }
+
+            // Tạo JWT token
+            var jwtToken = tokenReponsitory.CreateJWTToken(user, roles);
+
+            // Lấy thông tin chi tiết dựa trên vai trò
             var userInfo = mapper.Map<UserDTO>(user);
 
-            // Lấy thông tin 
-            if(roles.Any(x => x.Equals("Customer", StringComparison.OrdinalIgnoreCase)))
+            if (roles.Any(x => x.Equals("Customer", StringComparison.OrdinalIgnoreCase)))
             {
-                var customerInfor = await dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == userId);
-                if (customerInfor == null)
+                var customerInfo = await dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == user.UserId);
+                if (customerInfo == null)
                 {
                     return NotFound("Không tìm thấy thông tin khách hàng.");
                 }
 
                 return Ok(new
                 {
+                    Token = jwtToken,
                     User = userInfo,
                     CustomerDTO = new
                     {
-                        LicenseId = customerInfor.LicenseId,
-                        UserId = customerInfor.UserId,
-                        Class = customerInfor.Class,
-                        Expire = customerInfor.Expire,
-                        Image = customerInfor.Image,
-                        Bills = new List<object>(), // Giả sử có thể lấy danh sách hóa đơn từ database
-                        RentalAgreements = new List<object>(), // Giả sử có thể lấy danh sách hợp đồng cho thuê từ database
-                        Reviews = new List<object>() // Giả sử có thể lấy danh sách đánh giá từ database
+                        LicenseId = customerInfo.LicenseId,
+                        UserId = customerInfo.UserId,
+                        Class = customerInfo.Class,
+                        Expire = customerInfo.Expire,
+                        Image = customerInfo.Image
                     }
                 });
             }
-            else if(roles.Any(x => x.Equals("Service", StringComparison.OrdinalIgnoreCase)))
+            else if (roles.Any(x => x.Equals("Service", StringComparison.OrdinalIgnoreCase)))
             {
-                // Lấy thông tin ServiceType từ bảng VehicleHireServices
                 var vehicleHireService = await dbContext.VehicleHireServices.FirstOrDefaultAsync(x => x.UserId == user.UserId);
-                if(vehicleHireService != null)
+                if (vehicleHireService != null)
                 {
-                    if(vehicleHireService.ServiceType.Equals("Business",StringComparison.OrdinalIgnoreCase))
+                    if (vehicleHireService.ServiceType.Equals("Business", StringComparison.OrdinalIgnoreCase))
                     {
-                        var businessInfor = await dbContext.Businesses.FirstOrDefaultAsync(x => x.UserId.ToString() == userId);
+                        var businessInfo = await dbContext.Businesses.FirstOrDefaultAsync(x => x.UserId.ToString() == user.UserId.ToString());
                         return Ok(new
                         {
+                            Token = jwtToken,
                             User = userInfo,
                             BusinessDTO = new
                             {
-                                BsnId = businessInfor.BsnId,
-                                Description = businessInfor.Description,
-                                BusinessImg = businessInfor.BusinessImg,
-                                RegistrationDate = businessInfor.RegistrationDate,
-                                Vat = businessInfor.Vat,
-                                IssuingLocation = businessInfor.IssuingLocation,
-                                DateOfIssue = businessInfor.DateOfIssue
-                            },
-                            VehicleHireService = new
-                            {
-                                UserId = vehicleHireService.UserId,
-                                ServiceType = vehicleHireService.ServiceType
+                                BsnId = businessInfo.BsnId,
+                                Description = businessInfo.Description,
+                                BusinessImg = businessInfo.BusinessImg,
+                                RegistrationDate = businessInfo.RegistrationDate,
+                                Vat = businessInfo.Vat,
+                                IssuingLocation = businessInfo.IssuingLocation,
+                                DateOfIssue = businessInfo.DateOfIssue
                             }
                         });
                     }
@@ -185,67 +276,43 @@ namespace RentCarSystem.Controllers
                         var individualInfo = await dbContext.Individuals.FirstOrDefaultAsync(i => i.UserId == user.UserId);
                         return Ok(new
                         {
+                            Token = jwtToken,
                             User = userInfo,
                             IndividualDTO = new
                             {
                                 IdvId = individualInfo.IdvId,
                                 UserId = individualInfo.UserId,
                                 ServiceType = vehicleHireService.ServiceType
-                            },
-                            VehicleHireService = new
-                            {
-                                UserId = vehicleHireService.UserId,
-                                ServiceType = vehicleHireService.ServiceType
                             }
                         });
                     }
-                    else
-                    {
-                        return Ok(new { User = userInfo, Message = "Không xác định được loại dịch vụ." });
-                    }
                 }
-                else
-                {
-                    return NotFound("Không tìm thấy");
-                }
+                return NotFound("Không tìm thấy thông tin dịch vụ.");
             }
-            // Nếu không có cái nào khớp
-            return Ok(new { User = userInfo });
-        }
-
-
-        //POST: /api/Auth/Login
-        [HttpPost]
-        [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
-        {
-            //Retrive user 
-            var user = await dbContext.Users
-                .Include(u => u.Roles)
-                .FirstOrDefaultAsync(u => u.Email == loginRequestDTO.email);
-
-            if (user != null)
+            else if (roles.Any(x => x.Equals("Admin", StringComparison.OrdinalIgnoreCase)))
             {
-                //Verify password
-                var isPasswordValid = await loginReponsitory.VerifyPassword(user, loginRequestDTO.password);
-
-                if(isPasswordValid)
+                var AdminInfo = await dbContext.Admins.FirstOrDefaultAsync(i => i.AdminId == user.UserId);
+                return Ok(new
                 {
-                    //Get Role for this User
-                    var role = user.Roles.FirstOrDefault()?.Type;
-                    if(role != null)
+                    Token = jwtToken,
+                    User = userInfo,
+                    AdminDTO = new
                     {
-                        //Create Token 
-                        var jwtToken = tokenReponsitory.CreateJWTToken(user, new List<string> { role });
-                        return Ok(new {Token = jwtToken});
+                        AdminId = user.UserId,
+                        Permissions = AdminInfo.LastLogin // Hoặc thêm thông tin khác nếu cần
                     }
-                }
-                return Unauthorized("Incorrect password ...");
+                });
             }
-            
-            return Unauthorized("User not existing ...");
 
+            // Nếu không khớp vai trò nào
+            return Ok(new
+            {
+                Token = jwtToken,
+                User = userInfo,
+                Message = "Vai trò không được hỗ trợ."
+            });
         }
+
 
 
 
