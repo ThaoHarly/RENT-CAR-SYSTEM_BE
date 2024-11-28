@@ -45,7 +45,7 @@ namespace RentCarSystem.Controllers
                 //Map DTO  to Domain User
                 var userDomain = mapper.Map<User>(registerRequestDTO);
 
-                await registerReponsitory.RegisterUser(userDomain,registerRequestDTO.Password, registerRequestDTO.Roles);
+                await registerReponsitory.RegisterUser(userDomain, registerRequestDTO.Roles);
 
 
                 // Map DTO to Role and get UserId
@@ -72,35 +72,142 @@ namespace RentCarSystem.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
-            //Retrive user 
+            // Tìm người dùng dựa trên email
             var user = await dbContext.Users
                 .Include(u => u.Roles)
                 .FirstOrDefaultAsync(u => u.Email == loginRequestDTO.email);
 
-            if (user != null)
+            if (user == null)
             {
-                //Verify password
-                var isPasswordValid = await loginReponsitory.VerifyPassword(user, loginRequestDTO.password);
+                return Unauthorized("Người dùng không t ồn tại.");
+            }
 
-                if(isPasswordValid)
+            // Kiểm tra mật khẩu
+            var isPasswordValid = await loginReponsitory.VerifyPassword(user, loginRequestDTO.password);
+
+            if (!isPasswordValid)
+            {
+                return Unauthorized("Mật khẩu không đúng.");
+            }
+
+            // Lấy vai trò của người dùng
+            var roles = user.Roles.Select(r => r.Type).ToList();
+            if (!roles.Any())
+            {
+                return Unauthorized("Người dùng không có vai trò nào được gán.");
+            }
+
+            // Tạo JWT token
+            var jwtToken = tokenReponsitory.CreateJWTToken(user, roles);
+
+            // Lấy thông tin chi tiết dựa trên vai trò
+            var userInfo = mapper.Map<UserDTO>(user);
+
+            if (roles.Any(x => x.Equals("Customer", StringComparison.OrdinalIgnoreCase)))
+            {
+                var customerInfo = await dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == user.UserId);
+                if (customerInfo == null)
                 {
-                    //Get Role for this User
-                    var role = user.Roles.FirstOrDefault()?.Type;
-                    if(role != null)
+                    return NotFound("Không tìm thấy thông tin khách hàng.");
+                }
+
+                return Ok(new
+                {
+                    Token = jwtToken,
+                    User = userInfo,
+                    CustomerDTO = new
                     {
-                        //Create Token 
-                        var jwtToken = tokenReponsitory.CreateJWTToken(user, new List<string> { role });
-                        return Ok(new {Token = jwtToken});
+                        LicenseId = customerInfo.LicenseId,
+                        UserId = customerInfo.UserId,
+                        Class = customerInfo.Class,
+                        Expire = customerInfo.Expire,
+                        Image = customerInfo.Image
+                    }
+                });
+            }
+            else if (roles.Any(x => x.Equals("Service", StringComparison.OrdinalIgnoreCase)))
+            {
+                var vehicleHireService = await dbContext.VehicleHireServices.FirstOrDefaultAsync(x => x.UserId == user.UserId);
+                if (vehicleHireService != null)
+                {
+                    if (vehicleHireService.ServiceType.Equals("Business", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var businessInfo = await dbContext.Businesses.FirstOrDefaultAsync(x => x.UserId.ToString() == user.UserId.ToString());
+                        return Ok(new
+                        {
+                            Token = jwtToken,
+                            User = userInfo,
+                            BusinessDTO = new
+                            {
+                                BsnId = businessInfo.BsnId,
+                                Description = businessInfo.Description,
+                                BusinessImg = businessInfo.BusinessImg,
+                                RegistrationDate = businessInfo.RegistrationDate,
+                                Vat = businessInfo.Vat,
+                                IssuingLocation = businessInfo.IssuingLocation,
+                                DateOfIssue = businessInfo.DateOfIssue
+                            }
+                        });
+                    }
+                    else if (vehicleHireService.ServiceType.Equals("Individual", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var individualInfo = await dbContext.Individuals.FirstOrDefaultAsync(i => i.UserId == user.UserId);
+                        return Ok(new
+                        {
+                            Token = jwtToken,
+                            User = userInfo,
+                            IndividualDTO = new
+                            {
+                                IdvId = individualInfo.IdvId,
+                                UserId = individualInfo.UserId,
+                                ServiceType = vehicleHireService.ServiceType
+                            }
+                        });
                     }
                 }
-                return Unauthorized("Incorrect password ...");
+                return NotFound("Không tìm thấy thông tin dịch vụ.");
             }
-            
-            return Unauthorized("User not existing ...");
+            else if (roles.Any(x => x.Equals("Admin", StringComparison.OrdinalIgnoreCase)))
+            {
+                var AdminInfo = await dbContext.Admins.FirstOrDefaultAsync(i => i.AdminId == user.UserId);
+                return Ok(new
+                {
+                    Token = jwtToken,
+                    User = userInfo,
+                    AdminDTO = new
+                    {
+                        AdminId = user.UserId,
+                        Permissions = AdminInfo.LastLogin // Hoặc thêm thông tin khác nếu cần
+                    }
+                });
+            }
 
+            // Nếu không khớp vai trò nào
+            return Ok(new
+            {
+                Token = jwtToken,
+                User = userInfo,
+                Message = "Vai trò không được hỗ trợ."
+            });
         }
 
+        //[HttpPost]
+        //[Route("VerifyOTP")]
+        //public async Task<IActionResult> VerifyOTP([FromBody] OTPVerificationRequestDTO request)
+        //{
+        //    // Log thông tin để kiểm tra
+        //    Console.WriteLine($"Verifying OTP for UserId: {request.UserId}, OTP: {request.OTP}, UserType: {request.UserType}");
 
+        //    // Gọi repository để xác minh OTP
+        //    var isOtpValid = await registerReponsitory.VerifyOTP(request.UserId, request.OTP, request.UserType);
+
+        //    if (!isOtpValid)
+        //    {
+        //        return BadRequest("Invalid or expired OTP. Please try again.");
+        //    }
+
+        //    return Ok("OTP verified successfully. Registration is complete.");
+        //}
 
         private async Task<IActionResult> RegisterAdmin(User userDomain, Role roleDomain)
         {

@@ -5,12 +5,11 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class ApprovalRequest
 {
-
     public string RequestId { get; set; } = Guid.NewGuid().ToString();
 
-    public string AdminId { get; set; }
+    public string AdminId { get; set; } = null!;
 
-    public string BsnId { get; set; } 
+    public string BsnId { get; set; } = null!;
 
     public DateOnly? RequestDay { get; set; }
 

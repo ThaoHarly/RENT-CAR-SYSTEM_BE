@@ -7,7 +7,7 @@ public partial class Motor
 {
     public string MotorId { get; set; } = Guid.NewGuid().ToString();
 
-    public string VehicleId { get; set; } 
+    public string VehicleId { get; set; } = null!;
 
     public string MotorImage { get; set; } = null!;
 

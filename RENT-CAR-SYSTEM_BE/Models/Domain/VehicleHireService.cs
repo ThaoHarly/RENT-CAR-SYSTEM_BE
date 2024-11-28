@@ -5,7 +5,7 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class VehicleHireService
 {
-    public string UserId { get; set; } 
+    public string UserId { get; set; } = null!;
 
     public string ServiceType { get; set; } = null!;
 

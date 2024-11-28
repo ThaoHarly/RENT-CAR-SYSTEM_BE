@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
+using RentCarSystem.Models.VNPay;
 
 namespace RentCarSystem.Mappings
 {
@@ -161,8 +162,8 @@ namespace RentCarSystem.Mappings
                .ReverseMap();
 
 
-            // Map CreateRentalAgreementDTO to RentalAgreementDomain
-            CreateMap<CreateRentalAgreementDTO, RentalAgreement>()
+            // Map PaymentInformationModel to RentalAgreementDomain
+            CreateMap<PaymentInformationModel, RentalAgreement>()
                .ForMember(dest => dest.AgreementId, opt => opt.Ignore()) // tự sinh
                .ForMember(dest => dest.VehicleId, opt => opt.Ignore()) // bo qua
                .ForMember(dest => dest.CusId, opt => opt.Ignore()) // bo qua

@@ -5,10 +5,9 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class Car
 {
-
     public string CarId { get; set; } = Guid.NewGuid().ToString();
 
-    public string VehicleId { get; set; }
+    public string VehicleId { get; set; } = null!;
 
     public string CarBrand { get; set; } = null!;
 

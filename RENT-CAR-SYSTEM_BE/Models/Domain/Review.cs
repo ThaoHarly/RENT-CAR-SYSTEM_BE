@@ -5,12 +5,11 @@ namespace RentCarSystem.Models.Domain;
 
 public partial class Review
 {
-
-    public string ReviewId { get; set; } 
+    public string ReviewId { get; set; } = null!;
 
     public string CusId { get; set; } = null!;
 
-    public string VehicleId { get; set; } 
+    public string VehicleId { get; set; } = null!;
 
     public int Rating { get; set; }
 

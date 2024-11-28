@@ -22,7 +22,12 @@ namespace RentCarSystem.Reponsitories
             this.dbContext = dbContext;
         }
 
-        public async Task<User> RegisterUser(User user, string rawPassword, string role)
+        //------
+
+
+        //-----
+
+        public async Task<User> RegisterUser(User user, string role)
         {
             //Check if Admin not exist or role different admin
             if ((await checkAdminExisting() && role.ToUpper().Equals("ADMIN")))
@@ -32,15 +37,13 @@ namespace RentCarSystem.Reponsitories
             //user
             var identityUser = new IdentityUser
             {
-                UserName = user.PhoneNumber
+                UserName = user.Email
             };
 
             //Password Encryption use PBKDF2 algorithm
             var passwordHasher = new PasswordHasher<IdentityUser>();
             user.Password = passwordHasher.HashPassword(identityUser, user.Password);
 
-            await dbContext.Users.AddAsync(user);
-            await dbContext.SaveChangesAsync();
             return user;
         }
         public async Task<Admin> RegisterAdmin(Admin admin)

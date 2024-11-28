@@ -14,6 +14,7 @@ using System.Reflection.Emit;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using RentCarSystem.Authorization;
+using RentCarSystem.Service.VNPay;
 
 
 namespace RentCarSystem
@@ -76,10 +77,13 @@ namespace RentCarSystem
             builder.Services.AddScoped<IMotorRepository, MotorRepository>();
             builder.Services.AddScoped<ICarReponsitory, CarReponsitory>();
             builder.Services.AddScoped<IRentalAgreementReponsitory, RentalAgreementReponsitory>();
+            builder.Services.AddScoped<IBillReponsitory, BillReponsitory>();
 
             //Add Hashpassword
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-               
+
+            //Add Vnpay
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
 
             //Add mapping
             builder.Services.AddAutoMapper(typeof(AutomapperProfile));
@@ -147,6 +151,21 @@ namespace RentCarSystem
             });
 
 
+
+
+
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddDefaultPolicy(policy =>
+            //    {
+            //        policy.AllowAnyOrigin()
+            //              .AllowAnyMethod()
+            //              .AllowAnyHeader();
+            //    });
+            //});
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -155,6 +174,8 @@ namespace RentCarSystem
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            //app.UseCors();
 
             app.UseHttpsRedirection();
 

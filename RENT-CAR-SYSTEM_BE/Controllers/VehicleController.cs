@@ -64,14 +64,14 @@ namespace RentCarSystem.Controllers
         // Get all
         [HttpGet]
         [Route("GetAllVehicle")]
-        public async Task<IActionResult> GetAllVehicle(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllVehicle(int pageNumber = 1, int pageSize = 10, string searchKeyword = "")
         {
             // Đảm bảo pageNumber và pageSize hợp lệ
             pageNumber = pageNumber < 1 ? 1 : pageNumber;
             pageSize = pageSize < 1 ? 10 : pageSize;
 
             //get all vehicle sau khi phân trang
-            var vehicleDomain = await vehicleRepository.GetPagedVehiclesAsync(pageNumber,pageSize);
+            var vehicleDomain = await vehicleRepository.GetPagedVehiclesAsync(pageNumber,pageSize, searchKeyword);
 
             if(vehicleDomain == null || !vehicleDomain.Any())
             {
@@ -126,6 +126,9 @@ namespace RentCarSystem.Controllers
                 data = vehicleDetailsList
             });
         }
+
+
+
 
 
         //Update

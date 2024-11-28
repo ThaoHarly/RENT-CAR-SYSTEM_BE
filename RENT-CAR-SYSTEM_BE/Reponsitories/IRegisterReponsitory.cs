@@ -4,7 +4,7 @@ namespace RentCarSystem.Reponsitories
 {
     public interface IRegisterReponsitory
     {
-        Task <User> RegisterUser (User user, string rawPassword, string role);
+        Task <User> RegisterUser (User user, string role);
 
         Task<Admin> RegisterAdmin(Admin admin);
         Task<Customer> RegisterCustomer(Customer customer);

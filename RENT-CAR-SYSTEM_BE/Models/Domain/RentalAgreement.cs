@@ -7,11 +7,11 @@ public partial class RentalAgreement
 {
     public string AgreementId { get; set; } = Guid.NewGuid().ToString();
 
-    public string VehicleId { get; set; }
+    public string? VehicleId { get; set; }
 
-    public string CusId { get; set; } = null!;
+    public string? CusId { get; set; }
 
-    public string ServiceId { get; set; }
+    public string? ServiceId { get; set; }
 
     public DateOnly? StartDate { get; set; }
 
@@ -20,6 +20,8 @@ public partial class RentalAgreement
     public string? Status { get; set; }
 
     public double? DepositAmount { get; set; }
+
+    public double? RemainingAmount { get; set; }
 
     public string? PaymentMethod { get; set; }
 
