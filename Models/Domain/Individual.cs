@@ -7,7 +7,7 @@ public partial class Individual
 {
     public string IdvId { get; set; } = Guid.NewGuid().ToString();
 
-    public string UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     public virtual VehicleHireService User { get; set; } = null!;
 }

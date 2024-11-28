@@ -7,17 +7,13 @@ public partial class Bill
 {
     public string BillId { get; set; } = Guid.NewGuid().ToString();
 
-    public string CusId { get; set; } = null!;
-
-    public string AgreementId { get; set; }
+    public string? PaymentMethod { get; set; }
 
     public DateOnly Date { get; set; }
 
-    public string PaymentImg { get; set; } = null!;
+    public string? OrderDescription { get; set; }
 
     public string Status { get; set; } = null!;
 
-    public virtual RentalAgreement Agreement { get; set; }
-
-    public virtual Customer Cus { get; set; } 
+    public virtual ICollection<RentalAgreement> RentalAgreements { get; set; } = new List<RentalAgreement>();
 }

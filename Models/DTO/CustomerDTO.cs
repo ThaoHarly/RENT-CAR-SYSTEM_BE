@@ -4,7 +4,7 @@ namespace RentCarSystem.Models.DTO
 {
     public class CustomerDTO
     {
-        public string LicenseId { get; set; } = null!;
+        public string LicenseId { get; set; } = null ;
 
         public string Class { get; set; } = null!;
 

@@ -7,9 +7,9 @@ public partial class Notification
 {
     public string NotificationId { get; set; } = Guid.NewGuid().ToString();
 
-    public string SenderId { get; set; }
+    public string SenderId { get; set; } = null!;
 
-    public string ReceiverId { get; set; }
+    public string ReceiverId { get; set; } = null!;
 
     public string Message { get; set; } = null!;
 

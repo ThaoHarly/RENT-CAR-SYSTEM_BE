@@ -15,5 +15,6 @@ namespace RentCarSystem.Reponsitories
 
         Task<ApprovalRequest> RegisterApprovalRequest(ApprovalRequest approvalRequest);
         Task<Notification> CreateNotification(Notification notification);
+        Task<bool> VerifyOTP(string userId, string otpInput, string userType);
     }
 }

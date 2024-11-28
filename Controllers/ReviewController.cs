@@ -25,6 +25,7 @@ namespace RentCarSystem.Controllers
             this.reviewRepository = reviewRepository;
         }
 
+        // POST: /api/Review
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] AddReviewDTO addReviewDTO)
@@ -64,6 +65,7 @@ namespace RentCarSystem.Controllers
             return CreatedAtAction(nameof(GetById), new { id = review.ReviewId }, review);
         }
 
+        // Get: /api/Review/{id}
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> GetById([FromRoute] string id)
@@ -75,7 +77,7 @@ namespace RentCarSystem.Controllers
             }
             return Ok(mapper.Map<ReviewDTO>(review));
         }
-
+        // Get: /api/Review
         [HttpGet]
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 10)
         {
@@ -93,6 +95,7 @@ namespace RentCarSystem.Controllers
             return Ok(mapper.Map<List<ReviewDTO>>(reviews));
         }
 
+        // Get: /api/Review/filter-by-rating
         [HttpGet("filter-by-rating")]
         public async Task<IActionResult> GetReviewsByRatings([FromQuery] string ratings)
         {
@@ -117,6 +120,7 @@ namespace RentCarSystem.Controllers
             return Ok(mapper.Map<List<ReviewDTO>>(reviews));
         }
 
+        // Delete: 	/api/Review/{id}
         [HttpDelete]
         [Route("{id}")]
         [Authorize]
@@ -150,6 +154,7 @@ namespace RentCarSystem.Controllers
             return NoContent();
         }
 
+        // Put: /api/Review/{id}
         [HttpPut]
         [Authorize]
         [Route("{id}")]

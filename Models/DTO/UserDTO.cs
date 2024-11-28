@@ -11,6 +11,8 @@ namespace RentCarSystem.Models.DTO
         public string PhoneNumber { get; set; } = null!;
 
         public string? Nationality { get; set; }
+    
+        public bool IsVerified = true;
 
     }
 }

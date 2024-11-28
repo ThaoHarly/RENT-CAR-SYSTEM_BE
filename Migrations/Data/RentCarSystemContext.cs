@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Models.Domain;
+using RentCarSystem.Models.Domain;
 
 namespace RentCarSystem.Migrations.Data;
 
@@ -34,6 +35,10 @@ public partial class RentCarSystemContext : DbContext
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
+    public virtual DbSet<Otprequest> Otprequests { get; set; }
+
+    public virtual DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+
     public virtual DbSet<RentalAgreement> RentalAgreements { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
@@ -45,6 +50,10 @@ public partial class RentCarSystemContext : DbContext
     public virtual DbSet<Vehicle> Vehicles { get; set; }
 
     public virtual DbSet<VehicleHireService> VehicleHireServices { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-D882L9J\\SQLEXPRESS;Database=RentCarSystem;Integrated Security=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -70,7 +79,7 @@ public partial class RentCarSystemContext : DbContext
         {
             entity.HasKey(e => e.RequestId).HasName("pk_ApprovalRequests");
 
-            entity.HasIndex(e => e.BsnId, "UQ__Approval__240DA66D8D0DBCE6").IsUnique();
+            entity.HasIndex(e => e.BsnId, "UQ__Approval__240DA66D17F029D8").IsUnique();
 
             entity.Property(e => e.RequestId)
                 .HasMaxLength(36)
@@ -105,30 +114,16 @@ public partial class RentCarSystemContext : DbContext
 
             entity.Property(e => e.BillId)
                 .HasMaxLength(36)
+                .IsUnicode(false);
+            entity.Property(e => e.OrderDescription)
+                .HasMaxLength(100)
                 .IsUnicode(false)
-                .HasColumnName("BillID");
-            entity.Property(e => e.AgreementId)
+                .HasColumnName("orderDescription");
+            entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(36)
                 .IsUnicode(false)
-                .HasColumnName("AgreementID");
-            entity.Property(e => e.CusId)
-                .HasMaxLength(12)
-                .IsUnicode(false)
-                .HasColumnName("CusID");
-            entity.Property(e => e.PaymentImg)
-                .HasMaxLength(100)
-                .HasColumnName("Payment_img");
+                .HasColumnName("paymentMethod");
             entity.Property(e => e.Status).HasMaxLength(10);
-
-            entity.HasOne(d => d.Agreement).WithMany(p => p.Bills)
-                .HasForeignKey(d => d.AgreementId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_AgreementID_Bill");
-
-            entity.HasOne(d => d.Cus).WithMany(p => p.Bills)
-                .HasForeignKey(d => d.CusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_CusID_Bill");
         });
 
         modelBuilder.Entity<Business>(entity =>
@@ -137,9 +132,9 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("Business");
 
-            entity.HasIndex(e => e.UserId, "UQ__Business__1788CCADF68B758D").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__Business__1788CCAD55BB9782").IsUnique();
 
-            entity.HasIndex(e => e.Description, "UQ__Business__4EBBBAC99B91EE6F").IsUnique();
+            entity.HasIndex(e => e.Description, "UQ__Business__4EBBBAC92D51CF8A").IsUnique();
 
             entity.Property(e => e.BsnId)
                 .HasMaxLength(36)
@@ -172,7 +167,7 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("Car");
 
-            entity.HasIndex(e => e.VehicleId, "UQ__Car__476B54B3EAE78138").IsUnique();
+            entity.HasIndex(e => e.VehicleId, "UQ__Car__476B54B323EB9A4A").IsUnique();
 
             entity.Property(e => e.CarId)
                 .HasMaxLength(36)
@@ -200,7 +195,7 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("Customer");
 
-            entity.HasIndex(e => e.UserId, "UQ__Customer__1788CCAD93A3F9A8").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__Customer__1788CCAD652589E3").IsUnique();
 
             entity.Property(e => e.LicenseId)
                 .HasMaxLength(12)
@@ -229,7 +224,7 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("Individual");
 
-            entity.HasIndex(e => e.UserId, "UQ__Individu__1788CCAD8B25887C").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__Individu__1788CCAD0CBE1AA1").IsUnique();
 
             entity.Property(e => e.IdvId)
                 .HasMaxLength(36)
@@ -252,7 +247,7 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("Motor");
 
-            entity.HasIndex(e => e.VehicleId, "UQ__Motor__476B54B3AAB2BDE1").IsUnique();
+            entity.HasIndex(e => e.VehicleId, "UQ__Motor__476B54B3B19BFCD8").IsUnique();
 
             entity.Property(e => e.MotorId)
                 .HasMaxLength(36)
@@ -301,6 +296,46 @@ public partial class RentCarSystemContext : DbContext
                 .HasConstraintName("fkSender_Notification");
         });
 
+        modelBuilder.Entity<Otprequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pkOTPRequests");
+
+            entity.ToTable("OTPRequests");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.OTP)
+                .HasMaxLength(6)
+                .IsUnicode(false)
+                .HasColumnName("string");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(36)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.Otprequests)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("fk_OTPRequests");
+        });
+
+        modelBuilder.Entity<PasswordResetRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07B45265B6");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.ResetToken).HasMaxLength(256);
+            entity.Property(e => e.UserId)
+                .HasMaxLength(36)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.PasswordResetRequests)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PasswordR__UserI__17F790F9");
+        });
+
         modelBuilder.Entity<RentalAgreement>(entity =>
         {
             entity.HasKey(e => e.AgreementId).HasName("pk_RentalAgreement");
@@ -311,6 +346,9 @@ public partial class RentCarSystemContext : DbContext
                 .HasMaxLength(36)
                 .IsUnicode(false)
                 .HasColumnName("AgreementID");
+            entity.Property(e => e.BillId)
+                .HasMaxLength(36)
+                .IsUnicode(false);
             entity.Property(e => e.CusId)
                 .HasMaxLength(36)
                 .IsUnicode(false)
@@ -326,7 +364,12 @@ public partial class RentCarSystemContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("VehicleID");
 
+            entity.HasOne(d => d.Bill).WithMany(p => p.RentalAgreements)
+                .HasForeignKey(d => d.BillId)
+                .HasConstraintName("fk_Bill");
+
             entity.HasOne(d => d.Cus).WithMany(p => p.RentalAgreements)
+                .HasPrincipalKey(p => p.UserId)
                 .HasForeignKey(d => d.CusId)
                 .HasConstraintName("fk_Cus_RentalAgreement");
 
@@ -396,15 +439,16 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.PhoneNumber, "UQ__User__85FB4E3893E55C93").IsUnique();
+            entity.HasIndex(e => e.PhoneNumber, "UQ__User__85FB4E38F498FABD").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__User__A9D10534E299CF9F").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__User__A9D10534B3229E4D").IsUnique();
 
             entity.Property(e => e.UserId)
                 .HasMaxLength(36)
                 .IsUnicode(false)
                 .HasColumnName("UserID");
             entity.Property(e => e.Email).HasMaxLength(50);
+            entity.Property(e => e.IsVerified).HasDefaultValue(false);
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Nationality).HasMaxLength(50);
             entity.Property(e => e.Password).HasMaxLength(256);
@@ -441,7 +485,7 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("Vehicle_Hire_Service");
 
-            entity.HasIndex(e => e.BankAccount, "UQ__Vehicle___D70583E0AE07956B").IsUnique();
+            entity.HasIndex(e => e.BankAccount, "UQ__Vehicle___D70583E012FB5386").IsUnique();
 
             entity.Property(e => e.UserId)
                 .HasMaxLength(36)

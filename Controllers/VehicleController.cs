@@ -29,7 +29,7 @@ namespace RentCarSystem.Controllers
             this.carReponsitory = carReponsitory;
         }
 
-        // Create
+        // Post : api/Vehicle/AddVehicle
         [Authorize(Policy = "BusinessWithAcceptStatus")]
         [HttpPost]
         [Route("AddVehicle")]
@@ -61,7 +61,7 @@ namespace RentCarSystem.Controllers
 
 
 
-        // Get all
+        // Get : api/Vehicle/GetAllVehicle?pageNumber=1&pageSize=10
         [HttpGet]
         [Route("GetAllVehicle")]
         public async Task<IActionResult> GetAllVehicle(int pageNumber = 1, int pageSize = 10)
@@ -128,7 +128,7 @@ namespace RentCarSystem.Controllers
         }
 
 
-        //Update
+        //Update: api/Vehicle/UpdateVehicle
         [Authorize(Policy = "BusinessWithAcceptStatus")]
         [HttpPut]
         [Route("UpdateVehicle")]
@@ -204,7 +204,7 @@ namespace RentCarSystem.Controllers
             return BadRequest("some thing was wrong ... ");
         }
 
-        //Delete 
+        //Delete api/Vehicle/DeleteVehicle/{id}
         [Authorize(Policy = "BusinessWithAcceptStatus")]
         [HttpDelete]
         [Route("DeleteVehicle/{VehicleId}")]
