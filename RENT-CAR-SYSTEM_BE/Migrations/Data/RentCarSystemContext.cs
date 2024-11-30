@@ -36,6 +36,8 @@ public partial class RentCarSystemContext : DbContext
 
     public virtual DbSet<Otprequest> Otprequests { get; set; }
 
+    public virtual DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+
     public virtual DbSet<RentalAgreement> RentalAgreements { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
@@ -48,9 +50,9 @@ public partial class RentCarSystemContext : DbContext
 
     public virtual DbSet<VehicleHireService> VehicleHireServices { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=Mice;Initial Catalog=RentCarSystem;Integrated Security=True;Trust Server Certificate=True;");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Data Source=Mice;Initial Catalog=RentCarSystem;Integrated Security=True;Trust Server Certificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -309,10 +311,10 @@ public partial class RentCarSystemContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
-            entity.Property(e => e.String)
+            entity.Property(e => e.OTP)
                 .HasMaxLength(6)
                 .IsUnicode(false)
-                .HasColumnName("string");
+                .HasColumnName("OTP");
             entity.Property(e => e.UserId)
                 .HasMaxLength(36)
                 .IsUnicode(false);
@@ -320,6 +322,28 @@ public partial class RentCarSystemContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Otprequests)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("fk_OTPRequests");
+        });
+
+        modelBuilder.Entity<PasswordResetRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_PasswordResetRequest");
+
+            entity.ToTable("PasswordResetRequest");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.IsUsed).HasDefaultValue(false);
+            entity.Property(e => e.ResetToken)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.UserId)
+                .HasMaxLength(36)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.PasswordResetRequests)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("fk_PasswordResetRequest");
         });
 
         modelBuilder.Entity<RentalAgreement>(entity =>

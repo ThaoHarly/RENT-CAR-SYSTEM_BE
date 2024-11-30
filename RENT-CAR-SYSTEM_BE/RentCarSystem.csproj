@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Reponsitories\VerifyEmail\**" />
+    <Content Remove="Reponsitories\VerifyEmail\**" />
+    <EmbeddedResource Remove="Reponsitories\VerifyEmail\**" />
+    <None Remove="Reponsitories\VerifyEmail\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="MailKit" Version="4.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
@@ -19,10 +26,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.1.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Reponsitories\VerifyEmail\" />
   </ItemGroup>
 
 </Project>

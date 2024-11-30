@@ -29,6 +29,8 @@ public partial class User
 
     public virtual ICollection<Otprequest> Otprequests { get; set; } = new List<Otprequest>();
 
+    public virtual ICollection<PasswordResetRequest> PasswordResetRequests { get; set; } = new List<PasswordResetRequest>();
+
     public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 
     public virtual VehicleHireService? VehicleHireService { get; set; }

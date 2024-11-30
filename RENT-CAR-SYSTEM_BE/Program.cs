@@ -78,6 +78,9 @@ namespace RentCarSystem
             builder.Services.AddScoped<ICarReponsitory, CarReponsitory>();
             builder.Services.AddScoped<IRentalAgreementReponsitory, RentalAgreementReponsitory>();
             builder.Services.AddScoped<IBillReponsitory, BillReponsitory>();
+            builder.Services.AddScoped<IEmailSender, EmailRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IResetPassWord, ResetPassWordRepository>();
 
             //Add Hashpassword
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
