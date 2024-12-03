@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RentCarSystem.Models.Domain;
+namespace RentCarSystem.Temp;
 
 public partial class Vehicle
 {
-    public string VehicleId { get; set; } = Guid.NewGuid().ToString();
+    public string VehicleId { get; set; } = null!;
+
     public string UserId { get; set; } = null!;
 
     public string Category { get; set; } = null!;

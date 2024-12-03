@@ -46,10 +46,10 @@ namespace RentCarSystem.Controllers
             var userId = userIdClaim.Value;
 
             // Kiểm tra xem người dùng đã thuê xe và đã thanh toán thành công chưa
-            var hasValidRental = await dbcontext.RentalAgreements.AnyAsync(r =>
-                r.CusId == userId && r.Status.ToLower() == "completed" && r.Status.ToLower() == "complete");
+            var hasValidRental = await dbcontext.RentalAgreements.FirstOrDefaultAsync(r =>
+                r.CusId == userId && r.Status.ToLower() == "completed");
 
-            if (!hasValidRental)
+            if (hasValidRental == null)
             {
                 return BadRequest("Bạn cần phải thuê và thanh toán thành công trước khi tạo đánh giá.");
             }
@@ -58,6 +58,7 @@ namespace RentCarSystem.Controllers
             var review = mapper.Map<Review>(addReviewDTO);
             review.CusId = userId; // Gán ID người dùng vào review
 
+            review.VehicleId = hasValidRental.VehicleId;
             // Tạo review mới
             await reviewRepository.CreateAsync(review);
 

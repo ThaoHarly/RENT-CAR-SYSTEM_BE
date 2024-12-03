@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RentCarSystem.Models.Domain;
+namespace RentCarSystem.Temp;
 
 public partial class Review
 {
-    public string ReviewId { get; set; } = Guid.NewGuid().ToString();
+    public string ReviewId { get; set; } = null!;
 
     public string CusId { get; set; } = null!;
 
