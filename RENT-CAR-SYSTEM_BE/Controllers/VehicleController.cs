@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
-using RentCarSystem.Reponsitories;
+using RentCarSystem.Reponsitories.IReponsitories;
+using RentCarSystem.Reponsitories.Reponsitories;
 using System.Data;
 using System.Security.Claims;
 
@@ -19,14 +20,17 @@ namespace RentCarSystem.Controllers
         private readonly RentCarSystemContext dbContext;
         private readonly IMotorRepository motorRepository;
         private readonly ICarReponsitory carReponsitory;
+        private readonly IImageReponsitory imageReponsitory;
 
-        public VehicleController(IMapper mapper, IVehicleReponsitory vehicleRepository, RentCarSystemContext dbContext, IMotorRepository motorRepository, ICarReponsitory carReponsitory)
+        public VehicleController(IMapper mapper, IVehicleReponsitory vehicleRepository, RentCarSystemContext dbContext, IMotorRepository motorRepository, 
+            ICarReponsitory carReponsitory, IImageReponsitory imageReponsitory)
         {
             this.mapper = mapper;
             this.vehicleRepository = vehicleRepository;
             this.dbContext = dbContext;
             this.motorRepository = motorRepository;
             this.carReponsitory = carReponsitory;
+            this.imageReponsitory = imageReponsitory;
         }
 
         // Create
@@ -58,7 +62,6 @@ namespace RentCarSystem.Controllers
 
             return BadRequest("Something went wrong ...");
         }
-
 
 
         // Get all
@@ -126,9 +129,6 @@ namespace RentCarSystem.Controllers
                 data = vehicleDetailsList
             });
         }
-
-
-
 
 
         //Update
@@ -207,6 +207,7 @@ namespace RentCarSystem.Controllers
             return BadRequest("some thing was wrong ... ");
         }
 
+
         //Delete 
         [Authorize(Policy = "BusinessWithAcceptStatus")]
         [HttpDelete]
@@ -276,6 +277,63 @@ namespace RentCarSystem.Controllers
 
 
 
+        //Upload Images
+        [Authorize(Policy = "BusinessWithAcceptStatus")]
+        [HttpPost]
+        [Route("UploadImages")]
+        public async Task<IActionResult> UploadImages([FromForm] ImageDTO imageDTO)
+        {
+            //Check xem phải chủ sở hữu của xe không
+            var ownerShipResult = await CheckOwnerShip(imageDTO.VehicleId);
+
+            if (ownerShipResult is ObjectResult result && (bool)result.Value == false)
+            {
+                return Unauthorized("You are not the owner of this vehicle");
+            }
+            // Kiểm tra tính hợp lệ của dữ liệu đầu vào
+            ValidateFileUpload(imageDTO);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Lưu file và lấy đường dẫn
+                var savedFilePath = await SaveFile(imageDTO);
+
+                // Tạo thông tin để lưu vào cơ sở dữ liệu
+                var image = new Image
+                {
+                    ImageId = Guid.NewGuid().ToString(),
+                    VehicleId = imageDTO.VehicleId,
+                    Upload = DateTime.UtcNow,
+                    ImagePath = savedFilePath
+                };
+
+                await imageReponsitory.AddAsync(image);
+
+                return Ok(new { Message = "Image uploaded successfully.", FilePath = savedFilePath });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while uploading the image.", Error = ex.Message });
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
         private async Task<IActionResult> AddMotor(Vehicle vehicleDomain, AddVehicleServiceDTO addVehicleServiceDTO)
         {
             //Map Motor to Vehicle Domain
@@ -341,5 +399,54 @@ namespace RentCarSystem.Controllers
             }
             return Ok(false);// User is not the owner
         }
+
+
+        private void ValidateFileUpload(ImageDTO request)
+        {
+            var allowedExtensions = new[] { ".png", ".jpeg", ".jpg" };
+
+            if (request == null || request.ImagePath == null)
+            {
+                ModelState.AddModelError("Image", "No image uploaded. Please upload a file.");
+                return;
+            }
+
+            var extension = Path.GetExtension(request.ImagePath.FileName).ToLower();
+            if (!allowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError("Image", "Unsupported file extension. Please upload a .png, .jpeg, or .jpg file.");
+            }
+
+            if (request.ImagePath.Length > 10485760) // 10MB
+            {
+                ModelState.AddModelError("Image", "File size exceeds 10MB. Please upload a smaller file.");
+            }
+        }
+
+
+        private async Task<string> SaveFile(ImageDTO imageDTO)
+        {
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(imageDTO.ImagePath!.FileName)}";
+
+            // Lưu vào thư mục wwwroot/Image
+            var directory = Path.Combine("Images");
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            var path = Path.Combine(directory, fileName);
+
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await imageDTO.ImagePath.CopyToAsync(stream);
+            }
+
+            // Trả về đường dẫn tương đối để lưu vào cơ sở dữ liệu
+            return $"Images/{fileName}";
+        }
+
+
+
     }
 }

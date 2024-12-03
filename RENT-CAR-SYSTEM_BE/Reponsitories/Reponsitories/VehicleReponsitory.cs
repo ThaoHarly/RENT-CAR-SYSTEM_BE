@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Models.Domain;
+using RentCarSystem.Reponsitories.IReponsitories;
 using System.Security.Claims;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 

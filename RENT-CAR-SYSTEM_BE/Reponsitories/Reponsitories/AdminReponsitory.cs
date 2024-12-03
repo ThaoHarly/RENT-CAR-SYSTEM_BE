@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
+using RentCarSystem.Reponsitories.IReponsitories;
 
 namespace RentCarSystem.Reponsitories
 {

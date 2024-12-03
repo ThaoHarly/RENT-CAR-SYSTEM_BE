@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Migrations.Data;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
-using RentCarSystem.Reponsitories;
+using RentCarSystem.Reponsitories.IReponsitories;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
@@ -552,8 +552,7 @@ namespace RentCarSystem.Controllers
                     Role = roleDTO,
                     Service = serviceDTO,
                     Business = businessDTO,
-                    ApprovalRequest = approvalRequestDomain,
-                    Notification = notificationDTO
+                    ApprovalRequest = approvalRequestDomain
                 };
 
                 return Ok(result);

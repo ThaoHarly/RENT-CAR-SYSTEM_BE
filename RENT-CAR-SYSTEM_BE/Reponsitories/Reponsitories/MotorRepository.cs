@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using RentCarSystem.Models.Domain;
+using RentCarSystem.Reponsitories.IReponsitories;
 
 namespace RentCarSystem.Reponsitories
 {
@@ -50,8 +51,6 @@ namespace RentCarSystem.Reponsitories
             {
                 return null;
             }
-            // update infor
-            existingMotor.MotorImage = motor.MotorImage;
             // save and return
             await dbContext.SaveChangesAsync();
             return existingMotor;

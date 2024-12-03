@@ -6,6 +6,7 @@ using RentCarSystem.Models.Domain;
 using MimeKit;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
+using RentCarSystem.Reponsitories.IReponsitories;
 
 namespace RentCarSystem.Reponsitories
 {

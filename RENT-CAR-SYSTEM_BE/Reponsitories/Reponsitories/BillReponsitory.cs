@@ -1,5 +1,6 @@
 ﻿using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.VNPay;
+using RentCarSystem.Reponsitories.IReponsitories;
 
 namespace RentCarSystem.Reponsitories
 {

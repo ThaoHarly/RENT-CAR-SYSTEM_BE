@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using RentCarSystem.Models.Domain;
+using RentCarSystem.Reponsitories.IReponsitories;
 
 namespace RentCarSystem.Reponsitories
 {

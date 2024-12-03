@@ -9,7 +9,5 @@ public partial class Motor
 
     public string VehicleId { get; set; } = null!;
 
-    public string MotorImage { get; set; } = null!;
-
     public virtual Vehicle Vehicle { get; set; } = null!;
 }

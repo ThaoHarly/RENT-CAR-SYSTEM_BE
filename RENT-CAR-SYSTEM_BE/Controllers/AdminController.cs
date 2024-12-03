@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
-using RentCarSystem.Reponsitories;
+using RentCarSystem.Reponsitories.IReponsitories;
 
 namespace RentCarSystem.Controllers
 {

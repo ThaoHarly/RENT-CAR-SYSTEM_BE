@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Migrations.Data;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
+using RentCarSystem.Reponsitories.IReponsitories;
 using System.ComponentModel;
 
 namespace RentCarSystem.Reponsitories

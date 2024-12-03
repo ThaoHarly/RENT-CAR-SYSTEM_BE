@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.Ocsp;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
+using RentCarSystem.Reponsitories.IReponsitories;
 using System.Data;
 
 namespace RentCarSystem.Reponsitories

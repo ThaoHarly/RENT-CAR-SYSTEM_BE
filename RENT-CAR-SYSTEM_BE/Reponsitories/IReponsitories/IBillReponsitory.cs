@@ -1,7 +1,7 @@
 ﻿using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.VNPay;
 
-namespace RentCarSystem.Reponsitories
+namespace RentCarSystem.Reponsitories.IReponsitories
 {
     public interface IBillReponsitory
     {

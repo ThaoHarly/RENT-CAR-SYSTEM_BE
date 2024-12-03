@@ -15,7 +15,6 @@ public partial class Car
 
     public int SeatingCapacity { get; set; }
 
-    public string CarImage { get; set; } = null!;
 
     public double? ChargingTime { get; set; }
 

@@ -2,7 +2,7 @@
 using RentCarSystem.Models.Domain;
 
 
-namespace RentCarSystem.Reponsitories
+namespace RentCarSystem.Reponsitories.IReponsitories
 {
     public interface ITokenReponsitory
     {

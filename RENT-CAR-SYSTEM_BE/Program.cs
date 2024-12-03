@@ -1,4 +1,4 @@
-global using RentCarSystem.Migrations.Data;
+Ôªøglobal using RentCarSystem.Migrations.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +15,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using RentCarSystem.Authorization;
 using RentCarSystem.Service.VNPay;
+using RentCarSystem.Reponsitories.IReponsitories;
+using RentCarSystem.Reponsitories.Reponsitories;
 
 
 namespace RentCarSystem
@@ -25,6 +27,7 @@ namespace RentCarSystem
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -32,13 +35,13 @@ namespace RentCarSystem
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Rent Car System API", Version = "v1" }); //t?o ra t‡i li?u API  v‡ version
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Rent Car System API", Version = "v1" }); //t?o ra t√†i li?u API  v√† version
                 //Add security configution
                 options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
-                    In = ParameterLocation.Header, // v? trÌ token trong HTTP header
-                    Type = SecuritySchemeType.ApiKey, //JWT s? truy?n nh? l‡ m?t API key trong qu· trÏnh Request
+                    In = ParameterLocation.Header, // v? tr√≠ token trong HTTP header
+                    Type = SecuritySchemeType.ApiKey, //JWT s? truy?n nh? l√† m?t API key trong qu√° tr√¨nh Request
                     Scheme = JwtBearerDefaults.AuthenticationScheme // S? d?ng chu?n Bearer Token
                 });
 
@@ -50,18 +53,30 @@ namespace RentCarSystem
                         {
                             Reference = new OpenApiReference
                             {
-                                Type = ReferenceType.SecurityScheme, // Tham chi?u t?i ??nh ngh?a b?o m?t ?„ ??nh ngh?a tr??c ?Û
+                                Type = ReferenceType.SecurityScheme, // Tham chi?u t?i ??nh ngh?a b?o m?t ?√£ ??nh ngh?a tr??c ?√≥
                                 Id = JwtBearerDefaults.AuthenticationScheme
                             },
                             Scheme = "Bearer",
                             Name = JwtBearerDefaults.AuthenticationScheme, //Bearer
-                            In = ParameterLocation.Header //X·c ??nh token s? ???c tÏm th?y trong HTTP request
+                            In = ParameterLocation.Header //X√°c ??nh token s? ???c t√¨m th?y trong HTTP request
                         },
                         new List <string>()
                     }
                 });
             });
 
+
+            // C·∫•u h√¨nh CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:5173")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
 
             //Add DBContext dependency injection
             builder.Services.AddDbContext<RentCarSystemContext>(option =>
@@ -81,6 +96,7 @@ namespace RentCarSystem
             builder.Services.AddScoped<IEmailSender, EmailRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IResetPassWord, ResetPassWordRepository>();
+            builder.Services.AddScoped<IImageReponsitory, ImageReponsitory>();
 
             //Add Hashpassword
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -185,6 +201,8 @@ namespace RentCarSystem
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // S·ª≠ d·ª•ng CORS
+            app.UseCors("AllowReactApp");
 
             app.MapControllers();
 

@@ -107,7 +107,6 @@ namespace RentCarSystem.Mappings
             CreateMap<AddVehicleServiceDTO, Motor>()
                 .ForMember(dest => dest.MotorId, opt => opt.Ignore()) // tự động sinh
                 .ForMember(dest => dest.VehicleId, opt => opt.Ignore()) // gán sau
-                .ForMember(dest => dest.MotorImage, opt => opt.MapFrom(src => src.MotorImage))
                 .ReverseMap();
 
             //Map Vehicle to VehicleDTO
@@ -123,7 +122,6 @@ namespace RentCarSystem.Mappings
                .ForMember(dest => dest.CarBrand, opt => opt.MapFrom(src => src.CarBrand))
                .ForMember(dest => dest.FuelType, opt => opt.MapFrom(src => src.FuelType))
                .ForMember(dest => dest.SeatingCapacity, opt => opt.MapFrom(src => src.SeatingCapacity))
-               .ForMember(dest => dest.CarImage, opt => opt.MapFrom(src => src.CarImage))
                .ForMember(dest => dest.ChargingTime, opt => opt.MapFrom(src => src.ChargingTime))
                .ReverseMap();
 
@@ -147,7 +145,6 @@ namespace RentCarSystem.Mappings
             CreateMap<UpdateVehicleRequestDTO, Motor>()
                 .ForMember(dest => dest.MotorId, opt => opt.Ignore()) // bo qua
                 .ForMember(dest => dest.VehicleId, opt => opt.Ignore()) // bo qua
-                .ForMember(dest => dest.MotorImage, opt => opt.MapFrom(src => src.MotorImage))
                 .ReverseMap();
 
             //Map UpdateVehicleRequestDTO to Car
@@ -157,7 +154,6 @@ namespace RentCarSystem.Mappings
                .ForMember(dest => dest.CarBrand, opt => opt.MapFrom(src => src.CarBrand))
                .ForMember(dest => dest.FuelType, opt => opt.MapFrom(src => src.FuelType))
                .ForMember(dest => dest.SeatingCapacity, opt => opt.MapFrom(src => src.SeatingCapacity))
-               .ForMember(dest => dest.CarImage, opt => opt.MapFrom(src => src.CarImage))
                .ForMember(dest => dest.ChargingTime, opt => opt.MapFrom(src => src.ChargingTime))
                .ReverseMap();
 

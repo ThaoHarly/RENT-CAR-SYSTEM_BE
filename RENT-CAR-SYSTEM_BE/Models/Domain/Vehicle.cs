@@ -25,6 +25,8 @@ public partial class Vehicle
 
     public virtual Car? Car { get; set; }
 
+    public virtual ICollection<Image> Images { get; set; } = new List<Image>();
+
     public virtual Motor? Motor { get; set; }
 
     public virtual ICollection<RentalAgreement> RentalAgreements { get; set; } = new List<RentalAgreement>();

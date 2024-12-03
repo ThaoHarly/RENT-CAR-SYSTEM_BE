@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
-using RentCarSystem.Reponsitories;
+using RentCarSystem.Reponsitories.IReponsitories;
 using System.Security.Claims;
 
 namespace RentCarSystem.Controllers

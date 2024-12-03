@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Models.Domain;
+using RentCarSystem.Reponsitories.IReponsitories;
 
 namespace RentCarSystem.Reponsitories
 {
@@ -48,7 +49,6 @@ namespace RentCarSystem.Reponsitories
             existingCar.CarBrand = car.CarBrand;
             existingCar.FuelType = car.FuelType;
             existingCar.SeatingCapacity = car.SeatingCapacity;
-            existingCar.CarImage = car.CarImage;
             existingCar.ChargingTime = car.ChargingTime;
 
             await dbContext.SaveChangesAsync();
