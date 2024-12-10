@@ -17,6 +17,7 @@ using RentCarSystem.Authorization;
 using RentCarSystem.Service.VNPay;
 using RentCarSystem.Reponsitories.IReponsitories;
 using RentCarSystem.Reponsitories.Reponsitories;
+using Microsoft.Extensions.FileProviders;
 
 
 namespace RentCarSystem
@@ -72,7 +73,7 @@ namespace RentCarSystem
                 options.AddPolicy("AllowReactApp",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:5173")
+                        policy.WithOrigins("http://localhost:3000")
                               .AllowAnyHeader()
                               .AllowAnyMethod();
                     });
@@ -193,6 +194,13 @@ namespace RentCarSystem
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+                RequestPath = "/Images"
+            });
 
             //app.UseCors();
 

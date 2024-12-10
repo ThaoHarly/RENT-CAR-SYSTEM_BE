@@ -14,13 +14,19 @@ namespace RentCarSystem.Reponsitories.Reponsitories
         }
         public async Task<Image> AddAsync(Image image)
         {
-            var checkVehicleExisting = dbContext.Vehicles.FirstOrDefaultAsync(x => x.VehicleId == image.VehicleId);
+            var checkVehicleExisting = await dbContext.Vehicles.FirstOrDefaultAsync(x => x.VehicleId == image.VehicleId);
             if (checkVehicleExisting == null)
                 return null;
 
             await dbContext.AddAsync(image);
             await dbContext.SaveChangesAsync();
             return image;
+        }
+
+        public async Task<List<Image>> GetImageByVehicleId(string vehicleId)
+        {
+
+            return await dbContext.Images.Where(x => x.VehicleId == vehicleId).ToListAsync();
         }
     }
 }

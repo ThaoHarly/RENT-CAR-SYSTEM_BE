@@ -130,6 +130,51 @@ namespace RentCarSystem.Controllers
             });
         }
 
+        //Get by VehicleId
+        [HttpGet]
+        [Route("GetVehicleById")]
+        public async Task<IActionResult> GetByVehicleId(string vehicleId)
+        {
+            //Get data from Vehicle Table
+            var vehicle = await vehicleRepository.GettByIdAsync(vehicleId);
+
+            if (vehicle.Category.ToUpper() == "CAR")
+            {
+                var carDomain = await carReponsitory.GetCarByIdVehicle(vehicle.VehicleId);
+                //Map vehicleDomain to vehicleDTO
+                var vehicleDTO = mapper.Map<VehicleDTO>(vehicle);
+
+                //Map carDomain to DTO
+                var carDTO = mapper.Map<CarDTO>(carDomain);
+
+                //Information about Vehicle 
+                var resultVehicle = new
+                {
+                    Vehicle = vehicleDTO,
+                    Car = carDTO
+                };
+                return Ok(resultVehicle);   
+            }
+            else if (vehicle.Category.ToUpper() == "MOTOR")
+            {
+                var motorDomain = await motorRepository.GetByVehicleIdAsync(vehicle.VehicleId);
+                //Map vehicleDomain to vehicleDTO
+                var vehicleDTO = mapper.Map<VehicleDTO>(vehicle);
+
+                //Map motorDomain to DTO
+                var motorDTO = mapper.Map<MotorDTO>(motorDomain);
+
+                //Information about Vehicle 
+                var resultVehicle = new
+                {
+                    Vehicle = vehicleDTO,
+                    Motor = motorDTO
+                };
+                return Ok(resultVehicle);
+            }
+            return BadRequest("some thing was wrong ... ");
+        }
+
 
         //Update
         [Authorize(Policy = "BusinessWithAcceptStatus")]
@@ -323,6 +368,54 @@ namespace RentCarSystem.Controllers
         }
 
 
+
+    
+        //Get Images by VehicleId
+        [HttpGet]
+        [Route("GetImagesByVehicleId")]
+        public async Task<IActionResult> GetImagesByVehicleId(string vehicleId)
+        {
+            if (string.IsNullOrEmpty(vehicleId))
+            {
+                return BadRequest("Vehicle ID is required.");
+            }
+
+            try
+            {
+                var imagesDomain = await imageReponsitory.GetImageByVehicleId(vehicleId);
+                if (imagesDomain == null || !imagesDomain.Any())
+                {
+                    return NotFound($"No images found for Vehicle ID: {vehicleId}");
+                }
+
+                var imageUrls = imagesDomain
+                    .Select(img => $"{Request.Scheme}://{Request.Host}/Images/{Path.GetFileName(img.ImagePath)}")
+                    .ToList();
+
+                return Ok(imageUrls);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while processing your request.", Error = ex.Message });
+            }
+        }
+
+        private string GetContentType(string filePath)
+        {
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            switch (extension)
+            {
+                case ".jpg":
+                case ".jpeg":
+                    return "Images/jpeg";
+                case ".png":
+                    return "Images/png";
+                case ".gif":
+                    return "Images/gif";
+                default:
+                    return "application/octet-stream"; // Default fallback for unknown types
+            }
+        }
 
 
 

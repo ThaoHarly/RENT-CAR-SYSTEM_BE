@@ -7,6 +7,7 @@ namespace RentCarSystem.Mappings
 {
     public class AutomapperProfile: Profile
     {
+
         public AutomapperProfile()
         {
             //Mapping RegisterRequestDTO to User
@@ -194,6 +195,21 @@ namespace RentCarSystem.Mappings
             // Map AddReviewDTO to Review
             CreateMap<Review, AddReviewDTO>().ReverseMap();
 
+            //Map Image to ImageDTO
+            CreateMap<Image, ImageDTO>()
+                .ForMember(dest => dest.VehicleId, opt => opt.MapFrom(src => src.VehicleId))
+                .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => ConvertStringToFormFile(src.ImagePath)))
+                .ReverseMap();
+
+
+        }
+        private IFormFile ConvertStringToFormFile(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath)) return null;
+
+            var fileName = Path.GetFileName(filePath);
+            var memoryStream = new MemoryStream(File.ReadAllBytes(filePath));
+            return new FormFile(memoryStream, 0, memoryStream.Length, null, fileName);
         }
     }
 }
