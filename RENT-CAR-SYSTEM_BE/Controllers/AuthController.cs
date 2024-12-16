@@ -251,6 +251,7 @@ namespace RentCarSystem.Controllers
             if (roles.Any(x => x.Equals("Customer", StringComparison.OrdinalIgnoreCase)))
             {
                 var customerInfo = await dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == user.UserId);
+                var role = await dbContext.Roles.FirstOrDefaultAsync(x => x.UserId == user.UserId);
                 if (customerInfo == null)
                 {
                     return NotFound("Không tìm thấy thông tin khách hàng.");
@@ -267,12 +268,17 @@ namespace RentCarSystem.Controllers
                         Class = customerInfo.Class,
                         Expire = customerInfo.Expire,
                         Image = customerInfo.Image
+                    },
+                    RoleDTO = new
+                    {
+                        Role = role.Type
                     }
                 });
             }
             else if (roles.Any(x => x.Equals("Service", StringComparison.OrdinalIgnoreCase)))
             {
                 var vehicleHireService = await dbContext.VehicleHireServices.FirstOrDefaultAsync(x => x.UserId == user.UserId);
+                var role = await dbContext.Roles.FirstOrDefaultAsync(x => x.UserId == user.UserId);
                 if (vehicleHireService != null)
                 {
                     if (vehicleHireService.ServiceType.Equals("Business", StringComparison.OrdinalIgnoreCase))
@@ -291,6 +297,10 @@ namespace RentCarSystem.Controllers
                                 Vat = businessInfo.Vat,
                                 IssuingLocation = businessInfo.IssuingLocation,
                                 DateOfIssue = businessInfo.DateOfIssue
+                            },
+                            RoleDTO = new
+                            {
+                                Role = role.Type
                             }
                         });
                     }
@@ -306,6 +316,10 @@ namespace RentCarSystem.Controllers
                                 IdvId = individualInfo.IdvId,
                                 UserId = individualInfo.UserId,
                                 ServiceType = vehicleHireService.ServiceType
+                            },
+                            RoleDTO = new
+                            {
+                                Role = role.Type
                             }
                         });
                     }
@@ -315,6 +329,7 @@ namespace RentCarSystem.Controllers
             else if (roles.Any(x => x.Equals("Admin", StringComparison.OrdinalIgnoreCase)))
             {
                 var AdminInfo = await dbContext.Admins.FirstOrDefaultAsync(i => i.AdminId == user.UserId);
+                var role = await dbContext.Roles.FirstOrDefaultAsync(x => x.UserId == user.UserId);
                 return Ok(new
                 {
                     Token = jwtToken,
@@ -323,6 +338,10 @@ namespace RentCarSystem.Controllers
                     {
                         AdminId = user.UserId,
                         Permissions = AdminInfo.LastLogin // Hoặc thêm thông tin khác nếu cần
+                    },
+                    RoleDTO = new
+                    {
+                        Role = role.Type
                     }
                 });
             }

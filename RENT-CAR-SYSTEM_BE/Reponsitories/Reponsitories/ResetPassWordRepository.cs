@@ -63,26 +63,43 @@ namespace RentCarSystem.Reponsitories
                 return "Email không tồn tại.";
             }
 
-            var resetToken = Guid.NewGuid().ToString();
-            var expiryDate = DateTime.Now.AddHours(1); // Token hết hạn sau 1 giờ
+            // Kiểm tra xem đã tồn tại yêu cầu reset mật khẩu nào chưa
+            var existingRequest = await dbcontext.PasswordResetRequests
+                .SingleOrDefaultAsync(r => r.UserId == user.UserId);
 
-            var resetRequest = new PasswordResetRequest
+            if (existingRequest != null)
             {
-                UserId = user.UserId,
-                ResetToken = resetToken,
-                ExpiryDate = expiryDate
-            };
+                // Cập nhật bản ghi cũ với token mới và thời gian hết hạn mới
+                existingRequest.ResetToken = Guid.NewGuid().ToString();
+                existingRequest.ExpiryDate = DateTime.UtcNow.AddHours(1);
+                existingRequest.CreatedAt = DateTime.UtcNow;
 
-            dbcontext.PasswordResetRequests.Add(resetRequest);
-            await dbcontext.SaveChangesAsync();
+                // Lưu thay đổi vào DB
+                await dbcontext.SaveChangesAsync();
+            }
+            else
+            {
+                // Tạo bản ghi mới nếu chưa có
+                var resetToken = Guid.NewGuid().ToString();
+                var expiryDate = DateTime.UtcNow.AddHours(1); // Token hết hạn sau 1 giờ
+
+                var resetRequest = new PasswordResetRequest
+                {
+                    UserId = user.UserId,
+                    ResetToken = resetToken,
+                    ExpiryDate = expiryDate,
+                    CreatedAt = DateTime.UtcNow,
+                };
+
+                dbcontext.PasswordResetRequests.Add(resetRequest);
+                await dbcontext.SaveChangesAsync();
+            }
 
             // Gửi email với reset token
-            //var resetUrl = $"{configuration["AppSettings:BaseUrl"]}/reset-password?token={resetToken}";
-
-            // Gửi email reset mật khẩu
+            var resetTokenForEmail = existingRequest?.ResetToken ?? Guid.NewGuid().ToString();
             var subject = "Yêu cầu thay đổi mật khẩu của bạn";
             var message = $"Chúng tôi đã nhận được yêu cầu thay đổi mật khẩu cho tài khoản của bạn. Nếu bạn đã yêu cầu thay đổi mật khẩu, vui lòng nhập token vào để thay đổi mật khẩu. " +
-                          $"Nếu không phải bạn yêu cầu, xin bỏ qua email này.\n\n{resetToken}";
+                          $"Nếu không phải bạn yêu cầu, xin bỏ qua email này.\n\n{resetTokenForEmail}";
 
             await emailSender.SendEmailAsync(email, subject, message);
 
