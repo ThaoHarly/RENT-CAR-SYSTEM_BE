@@ -67,10 +67,12 @@ namespace RentCarSystem.Reponsitories
             var existingRequest = await dbcontext.PasswordResetRequests
                 .SingleOrDefaultAsync(r => r.UserId == user.UserId);
 
+            string resetTokenTemplate = null;
             if (existingRequest != null)
             {
                 // Cập nhật bản ghi cũ với token mới và thời gian hết hạn mới
                 existingRequest.ResetToken = Guid.NewGuid().ToString();
+                resetTokenTemplate = existingRequest.ResetToken;
                 existingRequest.ExpiryDate = DateTime.UtcNow.AddHours(1);
                 existingRequest.CreatedAt = DateTime.UtcNow;
 
@@ -81,7 +83,7 @@ namespace RentCarSystem.Reponsitories
             {
                 // Tạo bản ghi mới nếu chưa có
                 var resetToken = Guid.NewGuid().ToString();
-                var expiryDate = DateTime.UtcNow.AddHours(1); // Token hết hạn sau 1 giờ
+                var expiryDate = DateTime.UtcNow.AddHours(1); // Token hết hạn sau 1 giờ và múi giờ VN hơn 7h
 
                 var resetRequest = new PasswordResetRequest
                 {
@@ -91,15 +93,16 @@ namespace RentCarSystem.Reponsitories
                     CreatedAt = DateTime.UtcNow,
                 };
 
+                resetTokenTemplate = resetRequest.ResetToken;
                 dbcontext.PasswordResetRequests.Add(resetRequest);
                 await dbcontext.SaveChangesAsync();
             }
 
             // Gửi email với reset token
-            var resetTokenForEmail = existingRequest?.ResetToken ?? Guid.NewGuid().ToString();
+            //var resetTokenForEmail = existingRequest?.ResetToken ?? Guid.NewGuid().ToString();
             var subject = "Yêu cầu thay đổi mật khẩu của bạn";
             var message = $"Chúng tôi đã nhận được yêu cầu thay đổi mật khẩu cho tài khoản của bạn. Nếu bạn đã yêu cầu thay đổi mật khẩu, vui lòng nhập token vào để thay đổi mật khẩu. " +
-                          $"Nếu không phải bạn yêu cầu, xin bỏ qua email này.\n\n{resetTokenForEmail}";
+                          $"Nếu không phải bạn yêu cầu, xin bỏ qua email này.\n\n{resetTokenTemplate}";
 
             await emailSender.SendEmailAsync(email, subject, message);
 
@@ -109,7 +112,7 @@ namespace RentCarSystem.Reponsitories
         public async Task<string> ResetPasswordAsync(string resetToken, string newPassword)
         {
             var resetRequest = await dbcontext.PasswordResetRequests
-            .Where(r => r.ResetToken == resetToken && r.ExpiryDate > DateTime.Now && r.IsUsed == false)
+            .Where(r => r.ResetToken == resetToken && r.ExpiryDate > DateTime.UtcNow)//&& r.ExpiryDate > DateTime.UtcNow.AddHours(7) 
             .SingleOrDefaultAsync();
 
             if (resetRequest == null)

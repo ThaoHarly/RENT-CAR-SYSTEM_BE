@@ -348,7 +348,8 @@ public partial class RentCarSystemContext : DbContext
 
             entity.ToTable("PasswordResetRequest");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id)
+      .ValueGeneratedOnAdd(); // Thiết lập Id tự tăng.
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
             entity.Property(e => e.IsUsed).HasDefaultValue(false);
