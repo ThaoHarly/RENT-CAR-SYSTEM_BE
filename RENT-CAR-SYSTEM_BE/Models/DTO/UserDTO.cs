@@ -4,6 +4,7 @@ namespace RentCarSystem.Models.DTO
 {
     public class UserDTO
     {
+        public string Id { get; set; }
         public string Name { get; set; } = null!;
 
         public string? Email { get; set; }
@@ -11,5 +12,7 @@ namespace RentCarSystem.Models.DTO
         public string PhoneNumber { get; set; } = null!;
 
         public string? Nationality { get; set; }
+
+        public string Roles { get; set; }
     }
 }

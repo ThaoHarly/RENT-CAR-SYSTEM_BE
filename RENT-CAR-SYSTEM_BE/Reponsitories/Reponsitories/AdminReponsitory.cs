@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using RentCarSystem.Models.Domain;
 using RentCarSystem.Models.DTO;
 using RentCarSystem.Reponsitories.IReponsitories;
@@ -65,5 +66,34 @@ namespace RentCarSystem.Reponsitories
             throw new NotImplementedException();
         }
 
+        public async Task<IEnumerable<UserDTO>> getAllUsersAsync()
+        {
+            var users = await dbContext.Users.Include(u => u.Roles).ToListAsync(); // Đảm bảo Role được load
+
+            return users.Select(u => new UserDTO
+            {
+                Id = u.UserId,
+                Name = u.Name,
+                Email = u.Email,
+                Nationality = u.Nationality,
+                PhoneNumber = u.PhoneNumber,
+                Roles = string.Join(", ", u.Roles.Select(r => r.Type))
+            });
+        }
+
+        public async Task<UserDTO> GetUserByIdAsync(string id)
+        {
+            var users =  await dbContext.Users.Include(u => u.Roles).FirstOrDefaultAsync(x => x.UserId == id);
+
+            return new UserDTO
+            {
+                Id = id,
+                Name = users.Name,
+                Email = users.Email,
+                Nationality = users.Nationality,
+                PhoneNumber = users.PhoneNumber,
+                Roles = string.Join(", ", users.Roles.Select(r => r.Type))
+            };
+        }
     }
 }

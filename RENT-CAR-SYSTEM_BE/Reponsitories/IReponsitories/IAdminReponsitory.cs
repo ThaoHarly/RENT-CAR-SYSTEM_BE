@@ -1,4 +1,5 @@
 ﻿using RentCarSystem.Models.Domain;
+using RentCarSystem.Models.DTO;
 
 namespace RentCarSystem.Reponsitories.IReponsitories
 {
@@ -8,5 +9,9 @@ namespace RentCarSystem.Reponsitories.IReponsitories
         Task<ApprovalRequest> UpdateApprovalRequestAsync(string idBusiness, ApprovalRequest approvalRequest);
         Task<Notification> SendNotificationAsync(string idBusiness, string status);
         Task<Admin> DeleteAdminAsync(Admin admin);
+
+        Task<IEnumerable<UserDTO>> getAllUsersAsync();
+
+        Task<UserDTO> GetUserByIdAsync(string id);
     }
 }

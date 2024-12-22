@@ -28,20 +28,42 @@ namespace RentCarSystem.Controllers
 
 
         //GET :api/Admin/
-        [HttpGet]
+        [HttpGet("Admin")]
         public async Task<IActionResult> getAdmin()
         {
             var adminDomain = await adminReponsitory.GetAdminAsync();
-            if(adminDomain == null)
+            if (adminDomain == null)
             {
                 return NotFound();
             }
-            var adminDTO = mapper.Map <List<AdminDTO >> (adminDomain);
+            var adminDTO = mapper.Map<List<AdminDTO>>(adminDomain);
 
             //Map Admin Domain to Admin DTO
             return Ok(adminDTO);
         }
 
+
+        //GET :api/Users/
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> getAllUsers()
+        {
+            var users = await adminReponsitory.getAllUsersAsync();
+            if (users == null || !users.Any())
+            {
+                return NotFound("No users found.");
+            }
+            return Ok(users);
+        }
+
+
+
+        //GET :api/UsersById/
+        [HttpGet("GetUserById")]
+        public async Task<IActionResult> getUserById(string userId)
+        {
+            var users = await adminReponsitory.GetUserByIdAsync(userId);
+            return Ok(users);
+        }
 
         //UPDATE :api/Admin/{id}
         [HttpPut]
